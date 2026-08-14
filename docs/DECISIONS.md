@@ -161,24 +161,97 @@ so one entry per वर्ग would force four unrelated write-ups into one body
 favour of topic-level entries carrying a `varga` number and the printed page, which also makes
 `topics` a genuine one-to-one spine rather than a tag cloud.
 
+**2026-08-14 — `avyayas` merged into `vocabulary`.**
+अव्यय is a `word_type` value, not a collection. Rejected the separate collection: its four
+fields duplicated `vocabulary`'s exactly apart from `usage`, which is now optional there, and
+two collections holding the same kind of thing let a word be entered in both with nothing
+detecting it. The "browse the class whole" requirement is met by a filtered view, which also
+stays correct as the list grows past what BAPS covers. Supporting evidence: BAPS marks अव्यय
+inline in its શબ્દસંગ્રહ tables with a bracketed abbreviation rather than listing them apart
+(`BAPS-1` p. 119).
+
+**2026-08-14 — URLs encode identity, not navigation.**
+Flat, one segment per collection: `/lessons/<slug>/`, `/dhatus/<slug>/`,
+`/vocabulary/<slug>/`, `/declensions/<slug>/`, `/topics/<slug>/`, `/texts/<slug>/`,
+`/notes/<slug>/`, `/books/<slug>/`, each with a plural index page.
+Rejected nesting lessons under their वर्ग (`/lessons/varga-7/sandhi/`): a topic recurs at
+several वर्ग as the syllabus spirals, and nesting bakes one pass's position into a permanent
+URL. Ordering is navigation and belongs in a view, not an address — `/syllabus/` renders
+वर्ग 1–41 in order and `/syllabus/varga-7/` lists that वर्ग's entries, both linking to the flat
+lesson URLs. A lesson slug carries its वर्ग for uniqueness (`varga-07-sandhi`) because the
+same topic is written up more than once.
+**No locale prefix.** Chrome is English and journal prose is one language per entry, so
+`/gu/` would promise a translated page that does not exist and would mislabel a Gujarati
+entry sitting under `/en/`. Chrome translation, if it ever happens, is a UI toggle rather
+than a second URL space. Reference entries carry all three languages on one page.
+`trailingSlash: 'always'`, set explicitly, so a page is never reachable at two addresses.
+**Paradigms get no page of their own.** `conjugations` render as anchored sections on the
+धातु page (`/dhatus/<slug>/#kartari-lat-parasmaipada`): a paradigm without its धातु is
+meaningless to a reader, and tens of thousands of near-identical thin pages would be worse
+than useless to crawl. `declensions` do get pages, since a stem is a headword in its own
+right.
+
+**2026-08-14 — JSON-LD generated from provenance, never hand-written.**
+Every page carries structured data derived from fields that already exist, so it cannot drift
+from the content:
+`books` → `Book` (author, publisher, bookEdition). `dhatus` and `vocabulary` → `DefinedTerm`
+inside a `DefinedTermSet` per collection — the correct schema.org type for terminology, and it
+carries `termCode` and `inDefinedTermSet`. `lessons` and `notes` → `LearningResource`, with
+`about` pointing at the topic and `learningResourceType` describing what it is. `texts` →
+`CreativeWork`. All pages get `BreadcrumbList` and `inLanguage`, the latter straight from the
+`language` field.
+The provenance block becomes `citation` and `isBasedOn` pointing at the `Book` entity — the
+`source` + `locator` pair maps onto it with no extra authoring, which is the reason to do this
+at all.
+Rejected: marking entries with any type implying authority or credential, and rejected
+`FAQPage` and similar engagement-bait types. The site is a beginner's notes and the structured
+data must say so; claiming more would be both dishonest and, if a form is wrong, actively
+harmful to whoever finds it in a search result.
+
+**2026-08-14 — Reference collections are not bounded by the syllabus.**
+`dhatus`, `vocabulary` and the paradigm collections hold the whole grammar — all ten गण, all
+ten लकार, the full अव्यय class — not only what BAPS teaches. The syllabus is one source among
+several, and the parked schema was always designed for the complete Dhātupāṭha.
+**Consequence, and it is a blocker rather than a note:** the provenance rule admits no
+exception, so nothing outside the books can be entered until a printed source for it is chosen
+and recorded in `docs/SOURCES.md`. A धातुपाठ is already listed there as wanted; an अव्यय
+source and a कोश for vocabulary are needed on the same terms.
+
+**2026-08-14 — Exercises deferred, on scope grounds rather than copyright.**
+Not built for the first version. **This does not reverse the 2026-08-13 decision, and the
+reason matters:** generating exercises from the owner's own verified rows was never a
+copyright problem. Reproducing BAPS's સ્વાધ્યાય is; question *formats* — fill the blank,
+match, classify — are not copyrightable, only specific content is. Exercises are deferred
+because a journal with no entries has nothing to generate from, not because the approach was
+unsound. Revisit once roughly thirty धातु are entered.
+
+**2026-08-14 — Nothing from the books is reproduced, including exercises.**
+Tightens the standing copyright position into a rule with no judgement calls in it: no BAPS
+explanation, no example sentence, no સ્વાધ્યાય question, no reading passage, no table copied
+as printed. Syllabus *order* is followed, and an order is not ownable. Vocabulary, धातु and
+paradigm rows are facts of the language rather than authored expression and are entered with a
+page citation — but the surrounding prose is always the owner's own. The BAPS imprint reserves
+all rights excepting brief quotation, so the one short quotation allowed by
+`docs/PROJECT.md` stays rare and always cited.
+
 ---
 
 ## Open — decide before the first entry publishes
 
-- [ ] **URL structure.** `/lessons/<slug>/`, `/dhatus/<slug>/`, `/texts/<slug>/` or
-      otherwise. Expensive to change after a year of indexing. Record it here once fixed.
 - [ ] **Content licence.** The site is free to use; that needs saying explicitly. A private
       repo does not defer this — the content is published either way. Pick one, put it in
       the repo and the site footer.
 - [ ] **Contact address** for corrections — dedicated, not personal. Plus a footer privacy
       line: the form collects a name and an email address, and that needs disclosing.
-- [ ] **`avyayas` merged into `vocabulary`, or kept separate?** Currently separate. BAPS
-      marks अव्यय inline in its शब्दसंग्रह tables with a bracketed abbreviation rather than
-      listing them apart, which is mild evidence for merging with a type flag. Decide in the
-      content-model pass.
-- [ ] **A printed धातुपाठ** — needed for गण, पद and the attribute set (उपधा, इत्,
-      सेट्/अनिट्). Attribute sets differ between editions; pick one and record it in
-      `docs/SOURCES.md` before any attribute field is added to `dhatus`.
+- [ ] **Sources for everything outside the syllabus.** Blocking, not optional — nothing can
+      be entered without one. A printed धातुपाठ for गण, पद and the attribute set (उपधा, इत्,
+      सेट्/अनिट्); attribute sets differ between editions, so pick one. Plus an अव्यय source
+      and a कोश for vocabulary. Record each in `docs/SOURCES.md` before entering from it.
+- [ ] **The seven empty controlled lists** in `docs/CONTENT-MODEL.md` — गण, पद, लकार, लिंग,
+      derivation, stem class, stem ending. `keystatic.config.ts` cannot be finalised without
+      them, and Claude does not supply them.
+- [ ] **Author identity in JSON-LD.** Whether the `Person` behind the site is named, and
+      under what name. Affects every page's structured data.
 - [ ] **JetBrains licence.** WebStorm currently shows a non-commercial-use badge. This
       project has a commercial API in its future; the parked project removed OrbStack for
       the same reason. Confirm the position and record it.
@@ -188,3 +261,5 @@ favour of topic-level entries carrying a `varga` number and the printed page, wh
 - [x] **`Book031`–`Book036`** — confirmed as तृतीयो भागः, recoded `BAPS-3`. 2026-08-14.
 - [x] **Primary language** — decided 2026-08-14, above.
 - [x] **Slug convention** — decided 2026-08-14, above.
+- [x] **URL structure** — decided 2026-08-14, above.
+- [x] **`avyayas`** — merged into `vocabulary` 2026-08-14, above.

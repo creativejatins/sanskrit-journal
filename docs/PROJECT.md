@@ -56,23 +56,28 @@ They live outside the repo and are covered by `.gitignore`.
 
 ## Content shape
 
-Collections in two groups. Full field definitions in `docs/CONTENT-MODEL.md`.
+Nine collections in two groups. Full field definitions in `docs/CONTENT-MODEL.md`.
 
 **Journal — things written on a day**
 
-- `lessons` — a BAPS syllabus unit, studied and written up
+- `books` — a BAPS volume: वर्ग range, edition, course year
+- `lessons` — **one topic within a वर्ग**, studied and written up
 - `texts` — a श्लोक or स्तोत्र broken down: verse, सन्धि-विच्छेद, word by word, translation
 - `notes` — anything else: a video, an LSK page, something worked out
 
 **Reference — things accumulated over time**
 
-- `dhatus` — designed for the full Dhātupāṭha across all ten गण, not only what BAPS covers
-- `vocabulary`
-- `avyayas`
+- `dhatus` — the full Dhātupāṭha across all ten गण, not only what BAPS covers
+- `vocabulary` — including अव्यय, which is a word type rather than a separate list
+- `conjugations` — one printed paradigm table per entry
+- `declensions` — शब्दरूप, and the कृदन्त that decline like them
 - `topics` — the controlled list that ties everything together
 
-> Under revision. The syllabus reading showed the reference side needs paradigm collections
-> the current model has no home for. See `docs/CONTENT-MODEL.md`.
+**The reference side is not bounded by the syllabus.** All ten गण, all ten लकार, the whole
+अव्यय class. BAPS teaches roughly half the गण and four of the ten लकार; the rest is learned
+from other sources and entered on the same terms. Nothing may be entered from a source that
+is not first recorded in `docs/SOURCES.md` — that rule has no exception, so the sources come
+before the ambition.
 
 ## Sources are merged, never separated
 
@@ -88,7 +93,7 @@ The registry of sources and their short codes is `docs/SOURCES.md`.
 
 ## Corrections
 
-The site carries a contact address in the footer. It has **no comment section**, and that is
+The site carries a contact form, linked from the foot of every entry. It has **no comment section**, and that is
 a decision rather than an omission.
 
 The owner cannot yet judge whether a correction is right. A public comment thread publishes
@@ -104,29 +109,40 @@ Every correction acted on is a normal edit — same provenance rules as any othe
 The site is public, so this is distribution rather than private study.
 
 - Following a syllabus **order** is fine. An order of topics is not ownable.
-- Reproducing BAPS explanations, exercises or example sentences is **not** fine.
+- **Nothing from the books is reproduced.** Not an explanation, not an example sentence, not
+  a સ્વાધ્યાય question, not a reading passage, not a table copied as printed.
 - Method: read the lesson, close the book, write what was understood, then reopen and check
   it was right. Writing *from the page* produces paraphrase; writing *from understanding*
   produces your own words.
-- Where a source's exact framing is wanted, quote one short line and cite it.
+- Where a source's exact framing is wanted, quote one short line and cite it. Rarely.
 - Same rule for video: learn from it, write your own notes, cite channel and timestamp.
+
+**What is not reproduction.** A धातु with its गण, पद and meaning is a fact of the language,
+not authored expression, and the same is true of a paradigm's cells. These are entered with a
+page citation. What is authored — and therefore off limits — is the explaining, the choosing
+of examples, the exercises and the reading passages.
 
 The BAPS imprint reserves all rights, excepting brief quotations in reviews and articles.
 The position above is a considered one taken against that notice, not a permission the books
 grant.
 
-## Exercises
+## Exercises — deferred
 
-Original, and generated from the owner's own verified data rather than written freely.
+**Not in the first version.** A journal with no entries has nothing to generate from.
 
-Once thirty धातुs are entered with गण, पद, अर्थ and a page reference, exercises follow
-mechanically from those rows — which गण is this धातु, match धातु to meaning, given the गण
-pick the form. Every question and every wrong option is an entry the owner verified from
-print, so an exercise can never be more wrong than the data behind it.
+The approach, when it returns, is unchanged and remains sound: exercises are generated from
+the owner's own verified rows, never written freely. Once roughly thirty धातु are entered
+with गण, पद, अर्थ and a page reference, questions follow mechanically from those rows — which
+गण is this धातु, match धातु to meaning. Every question and every wrong option is an entry the
+owner verified from print, so an exercise can never be more wrong than the data behind it.
+This is the parked schema's §9.1 principle: options point at real rows, so distractors stay
+correct forever.
 
-This is the parked schema's §9.1 principle, unchanged: options point at real rows, so
-distractors stay correct forever.
+**Deferring this is a scope call, not a copyright one.** Generating questions from the
+owner's own data was never an infringement risk. Reproducing BAPS's સ્વાધ્યાય is — but a
+question *format*, such as match-the-meaning or fill-the-blank, is not ownable; only specific
+content is. Worth stating plainly so the feature is not later abandoned for a reason that
+was never true.
 
-**Coverage limit.** BAPS's own exercises include translation prompts, which cannot be
-generated from reference rows. Generated exercises cover recall, classification and matching
-only; translation practice comes from the books and is not reproduced here.
+**Coverage limit when it returns.** Translation prompts cannot be generated from reference
+rows. Generated exercises would cover recall, classification and matching only.

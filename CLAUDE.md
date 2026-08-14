@@ -8,7 +8,7 @@ Read `docs/PROJECT.md` first. This file is the operating rules.
 |---|---|
 | `/CLAUDE.md` | this file — operating rules |
 | `docs/PROJECT.md` | what the site is, stack, copyright position |
-| `docs/CONTENT-MODEL.md` | the seven collections and their fields |
+| `docs/CONTENT-MODEL.md` | the collections and their fields |
 | `docs/SOURCES.md` | source registry — short codes, editions, verified pages |
 | `docs/DECISIONS.md` | dated log of decisions taken and why |
 
@@ -50,8 +50,8 @@ This content is expected to import into the parked relational schema
 (`sanskrit-api`, tag `schema-draft-7`) in roughly a year. Three rules protect that, and all
 three are about data quality rather than storage — storage was never the hard part.
 
-1. **Controlled fields, never free text**, for anything with a fixed list — गण, पद,
-   `source_type`, topics. Use `fields.select` with fixed options, or
+1. **Controlled fields, never free text**, for anything with a fixed list — गण, पद, लकार,
+   लिंग, `source_type`, topics. Use `fields.select` with fixed options, or
    `fields.relationship` into a collection. A free-text गण becomes भ्वादि, भ्वादिः and
    Bhvādi across three months, and no import can tell they are one thing.
 2. **Slugs are permanent.** Keystatic's relationship field stores a slug as a static string
@@ -63,6 +63,8 @@ three are about data quality rather than storage — storage was never the hard 
 ## Scope discipline
 
 - **No database.** No Postgres, no Directus, no ORM, no D1. Content is files in Git.
+  Build-time derived indexes — a headword index, a sharded reverse-lookup index — are not a
+  database and are allowed: they are generated, disposable and regenerable from Git.
 - **No API.** That project is parked deliberately, not forgotten.
 - **No schema design.** If a modelling question feels big, it belongs in the parked repo's
   documents, not here.
@@ -93,6 +95,15 @@ Carried from the parked project because it earned its place there.
 
 ## Copyright
 
-The site is public. Following a syllabus order is fine; reproducing a book's explanations,
-exercises or example sentences is not. Never paste source text into an entry as a draft to
-be reworded later — that draft ends up shipped.
+The site is public. Following a syllabus **order** is fine — an order is not ownable.
+
+**Nothing from the books is reproduced.** Not an explanation, not an example sentence, not a
+સ્વાધ્યાય question, not a reading passage, not a table copied as printed. There is no
+judgement call here and no "reworded later": never paste source text into an entry as a
+draft, because that draft ends up shipped.
+
+Vocabulary, धातु and paradigm rows are facts of the language rather than authored expression,
+and are entered with a page citation. The prose around them is always the owner's own.
+
+The BAPS imprint reserves all rights excepting brief quotation, so the single short quotation
+`docs/PROJECT.md` permits stays rare and is always cited.

@@ -1,7 +1,8 @@
 # Content model
 
-Nine Keystatic collections. Field names below are indicative; the authoritative definition
-is `keystatic.config.ts` once written.
+Eight Keystatic collections — `books`, `lessons`, `texts`, `notes`, `dhatus`, `vocabulary`,
+`conjugations`, `declensions`, plus `topics` as the spine. Field names below are indicative;
+the authoritative definition is `keystatic.config.ts` once written.
 
 **Three principles run through all of it.**
 
@@ -205,22 +206,18 @@ describes cannot be generated.
 
 ### `avyayas` — merged into `vocabulary`
 
-> **This is the one change in this document awaiting your confirmation.**
+**Decided 2026-08-14. The separate collection is gone.** अव्यय is a `word_type` value, so the
+whole class is a filtered view of `vocabulary` — which is what "browse the class whole"
+actually needs, and it stays correct as the list grows past what BAPS covers.
 
-**Recommendation: drop the separate collection.** `word_type` already contains अव्यय, so the
-class is browsable as a filtered view of `vocabulary` — which is what "browse the whole class"
-actually needs. `avyaya` / `iast` / `meaning` duplicate `word` / `word_iast` / `meaning_*`
-exactly, and the only distinct field, `usage`, is now optional on `vocabulary`.
+The deciding argument was an error mode, not tidiness: two collections holding the same kind
+of thing means a word can be entered in both and nothing detects it. `avyaya` / `iast` /
+`meaning` duplicated `word` / `word_iast` / `meaning_*` exactly, and the only distinct field,
+`usage`, is now optional on `vocabulary`.
 
-The deciding argument is an error mode, not tidiness: two collections holding the same kind
-of thing means a word can be entered in both, and nothing detects it.
-
-Supporting evidence, though it is one page: BAPS marks अव्यय **inline** in its શબ્દસંગ્રહ
-tables with a bracketed abbreviation rather than listing them separately (`BAPS-1` p. 119).
-The source treats it as a word type, not a separate list.
-
-**If you reject this**, `avyayas` stays as it was and this section reverts — nothing else in
-the document depends on it.
+Supporting evidence: BAPS marks अव्यय **inline** in its શબ્દસંગ્રહ tables with a bracketed
+abbreviation rather than listing them apart (`BAPS-1` p. 119) — the source treats it as a
+word type, not a separate list.
 
 ### `conjugations` — one printed paradigm table
 
