@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json.schemastore.org/wrangler.json",
+  "name": "sanskrit-journal",
+  "compatibility_date": "2026-08-01",
+  "assets": { "directory": "./dist" }
+}
