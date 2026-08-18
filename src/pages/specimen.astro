@@ -1,0 +1,78 @@
+---
+// Dev-only type specimen for Run 1 (docs/runs/RUN-1-typography.md).
+// Not linked from anywhere. Skipped in the production build.
+//
+// All text below is a bracketed placeholder literal, not a real word in any
+// script — see /CLAUDE.md, "Never write Sanskrit," which also covers IAST,
+// since IAST is a transliteration of Sanskrit. The owner has not yet
+// supplied specimen strings (docs/DECISIONS.md, Open items), so this page
+// cannot be tuned and Run 1b has not started. Replace the placeholders with
+// the owner's strings when they arrive, then proceed to 1b.
+
+export const prerender = true;
+
+if (import.meta.env.PROD) {
+  return new Response(null, { status: 404 });
+}
+
+import '../styles/fonts.css';
+
+const sizes = [16, 24, 32, 48, 64];
+
+const families = [
+  { label: 'Noto Sans (Latin)', family: "'Noto Sans'", placeholder: '[Latin sample — awaiting specimen string]' },
+  { label: 'Noto Sans Devanagari', family: "'Noto Sans Devanagari'", placeholder: '[Devanagari sample — awaiting specimen string]' },
+  { label: 'Noto Sans Gujarati', family: "'Noto Sans Gujarati'", placeholder: '[Gujarati sample — awaiting specimen string]' },
+  { label: 'Noto Serif (Latin)', family: "'Noto Serif'", placeholder: '[Latin sample — awaiting specimen string]' },
+  { label: 'Noto Serif Devanagari', family: "'Noto Serif Devanagari'", placeholder: '[Devanagari sample — awaiting specimen string]' },
+  { label: 'Noto Serif Gujarati', family: "'Noto Serif Gujarati'", placeholder: '[Gujarati sample — awaiting specimen string]' },
+];
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Type specimen (dev only) — sanskritgrammar.com</title>
+  <meta name="robots" content="noindex, nofollow" />
+
+  <!-- Preload: three files only (Run 1a step 7) -->
+  <link rel="preload" href="/fonts/noto-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/noto-sans-devanagari-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/noto-sans-gujarati-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+</head>
+<body>
+  <p><strong>Dev-only specimen. Not in the production build, not linked from anywhere.</strong></p>
+  <p>
+    Every string below is a bracketed placeholder literal. Run 1b (metric tuning,
+    line-height, size scale) is blocked until the owner supplies real specimen
+    strings — see docs/runs/RUN-1-typography.md and docs/DECISIONS.md, Open items.
+  </p>
+
+  {families.map(({ label, family, placeholder }) => (
+    <section>
+      <h2>{label}</h2>
+      {sizes.map((size) => (
+        <p style={`font-family: ${family}, sans-serif; font-size: ${size}px; margin: 0.25em 0;`}>
+          {placeholder} ({size}px)
+        </p>
+      ))}
+    </section>
+  ))}
+
+  <section>
+    <h2>Mixed-script line</h2>
+    <p style="font-size: 32px; margin: 0.25em 0;">
+      <span style="font-family: 'Noto Sans', sans-serif;">[Latin — awaiting specimen string] </span>
+      <span style="font-family: 'Noto Sans Devanagari', sans-serif;">[Devanagari — awaiting specimen string] </span>
+      <span style="font-family: 'Noto Sans Gujarati', sans-serif;">[Gujarati — awaiting specimen string]</span>
+    </p>
+  </section>
+
+  <section>
+    <h2>Latin line carrying IAST diacritics</h2>
+    <p style="font-family: 'Noto Sans', sans-serif; font-size: 32px; margin: 0.25em 0;">
+      [IAST sample — awaiting specimen string; not written here because IAST is a transliteration of Sanskrit]
+    </p>
+  </section>
+</body>
+</html>
