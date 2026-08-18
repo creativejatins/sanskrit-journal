@@ -234,6 +234,17 @@ page citation — but the surrounding prose is always the owner's own. The BAPS 
 all rights excepting brief quotation, so the one short quotation allowed by
 `docs/PROJECT.md` stays rare and always cited.
 
+**2026-08-14 — Cloudflare Workers, not Pages.**
+Reverses the hosting half of the 2026-08-13 stack choice; the rest of that decision stands.
+Cloudflare now steers new projects to Workers, but the deciding fact is narrower:
+`@astrojs/cloudflare` v12 was the last version supporting Pages — v13 (March 2026) dropped it
+for Workers. Keystatic's GitHub mode needs that adapter for server routes, so staying on Pages
+would mean pinning to a superseded adapter or migrating with content live. A Pages project
+created through the Git integration also cannot switch to Direct Upload afterwards. Taken on
+an empty site, where it costs nothing.
+Config lives in `wrangler.jsonc` at the repo root — static assets only for now, no Worker
+script. `nodejs_compat` and a `main` entry become necessary when the adapter arrives.
+
 ---
 
 ## Open — decide before the first entry publishes

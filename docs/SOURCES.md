@@ -150,11 +150,24 @@ Locator format: `Video title — mm:ss`. Record the video URL on the entry.
 
 Sources needed but not yet held. Nothing here may be cited.
 
+The reference collections are deliberately not bounded by the syllabus — all ten गण, all ten
+लकार, the whole अव्यय class. The provenance rule admits no exception, so **each of these is a
+blocker, not a wish list**: nothing outside the books can be entered until its source is
+chosen and recorded here.
+
 - **A printed धातुपाठ**, for गण, पद and the attribute set (उपधा, इत्, सेट्/अनिट् and the rest).
   The syllabus teaches roughly half the गण and four of the ten लकार, so the attributes and
   the remaining paradigms must come from outside it. Edition matters — attribute sets differ
   between them. Pick one and record it here before any attribute field is added to
   `dhatus`.
+- **An अव्यय source.** BAPS gives two अव्ययसंग्रह lists (`BAPS-1` pp. 48 and 115) and marks
+  अव्यय inline elsewhere. That covers the syllabus, not the class. A अव्यय listing from a
+  grammar or कोश is needed before the collection can claim to be complete.
+- **A कोश for vocabulary.** Needed for words beyond the शब्दसंग्रह lists, and for meanings in
+  Hindi where BAPS gives only Gujarati. Record which edition, and note that a कोश's glosses
+  are authored text — enter the sense, not the wording.
+- **A paradigm source for the six लकार BAPS does not teach.** `LSK-GPS` may serve; confirm it
+  gives full tables rather than derivations before relying on it.
 
 ---
 

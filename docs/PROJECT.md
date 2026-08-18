@@ -40,8 +40,9 @@ changes.
 |---|---|
 | Site | Astro |
 | Content editing | Keystatic (local mode for writing, GitHub mode in production) |
+| Deploy | Workers Builds on push to `main` |
 | Storage | Markdown and YAML files in Git — **no database** |
-| Hosting | Cloudflare Pages |
+| Hosting | Cloudflare Workers (static assets; `wrangler.jsonc` at repo root) |
 | Domain | sanskritgrammar.com (already on Cloudflare) |
 | Repo | GitHub — **private**; the built site is public |
 | Editor | WebStorm |

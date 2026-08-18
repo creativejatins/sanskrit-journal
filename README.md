@@ -22,7 +22,7 @@ is worse than no correction at all when the author cannot yet adjudicate it. See
 
 ## Stack
 
-Astro · Keystatic · Cloudflare Pages. Content is markdown and YAML in this repo — no
+Astro · Keystatic · Cloudflare Workers. Content is markdown and YAML in this repo — no
 database.
 
 ## Running locally
@@ -30,6 +30,12 @@ database.
 ```bash
 npm install
 npm run dev
+```
+
+Deploy:
+
+```bash
+npm run build && npx wrangler deploy
 ```
 
 Site at `localhost:4321`, editor at `localhost:4321/keystatic` (local mode — writes straight
