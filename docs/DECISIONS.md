@@ -83,10 +83,13 @@ content) in favour of one form plus a per-entry link.
 Spam defence in three free layers: honeypot field, Cloudflare Turnstile, and rate limiting on
 the endpoint. Turnstile over Google reCAPTCHA because the site carries no tracking and should
 not start now.
-Implemented as a Cloudflare Pages Function rather than a hosted form service: it is
+Implemented as a Cloudflare function rather than a hosted form service: it is
 stateless, so it stays inside the no-database rule, and corrections — the input to the
 verification loop — stay under the owner's control. Cost: an email-sending service and about
 an hour more work. A dedicated address, never a personal one.
+*Amended 2026-08-18: this originally read "a Cloudflare Pages Function", written before the
+Workers decision later the same day. On Workers it is a route in the Worker, not a Pages
+Function. The design is unchanged; only the mechanism named was wrong.*
 
 **2026-08-14 — Primary language: Gujarati content, English chrome.**
 Content fields sourced from BAPS are written in Gujarati, its own language. Site chrome,
@@ -245,6 +248,106 @@ an empty site, where it costs nothing.
 Config lives in `wrangler.jsonc` at the repo root — static assets only for now, no Worker
 script. `nodejs_compat` and a `main` entry become necessary when the adapter arrives.
 
+**2026-08-18 — Noto across all three scripts; serif headings, sans body.**
+Body text, data and every Sanskrit form: Noto Sans, Noto Sans Devanagari, Noto Sans
+Gujarati. Headings and chrome: Noto Serif, Noto Serif Devanagari, Noto Serif Gujarati.
+The deciding criterion is that **Gujarati's nearest neighbour on the page is Devanagari, not
+Latin** — a reference entry puts a Gujarati gloss one row from a Hindi one, so disagreement
+between the two Indic faces is the visible failure. Noto is the only collection with Latin,
+Devanagari and Gujarati co-designed.
+Rejected **Rasa** for Gujarati: a good face, but drawn against a Latin companion rather than
+a Devanagari one.
+Rejected **Tiro Devanagari Sanskrit**, and the reason is worth recording because it will be
+rediscovered. It is on paper the ideal face for this site — Hudson and Ross, originating in
+the Murty Classical Library types, traditional conjuncts, Vedic accent support, a Latin
+subset carrying transliteration diacritics. Two facts rule it out: the Tiro Indic collection
+has **no Gujarati** (Bangla, three Devanagari cuts, Gurmukhi, Kannada, Malayalam, Sinhala,
+Tamil, Telugu), so adopting it puts two unrelated Indic faces on every reference page; and it
+ships regular and italic only, no bold.
+Sans for body is not only a stroke-robustness argument. Verified against `BAPS-1` p. 31: the
+book sets both scripts in a modern, lightly modulated style with horizontal half-form
+conjuncts and no traditional stacked ligatures. A learner mapping screen to printed page
+should not have to cross a typographic gap as well.
+
+**2026-08-18 — A Sanskrit form is set one way, everywhere.**
+One face, one weight, one colour — Noto Sans Devanagari — wherever it appears: headword,
+paradigm cell, heading, inline in prose. This generalises the standing rule against colouring
+a Sanskrit form. A headword is a heading by position but **data** by nature, and if it renders
+serif as a title and sans in the cell below it, the same form looks like two things on one
+page. Overrides the serif-heading rule wherever the two conflict.
+
+**2026-08-18 — Fonts self-hosted, static cuts, subsets merged.**
+Rejected linking Google's CSS API. Cache partitioning ended the cross-site cache benefit and
+it costs two connections before first text paint, but the deciding reason is narrower: the
+metric-reconciliation plan requires editing `@font-face` descriptors — `size-adjust`,
+`ascent-override`, `unicode-range` — and the CDN hands you a stylesheet you do not control.
+Files come from Fontsource for versioning; the `@font-face` block is written by hand.
+Static packages, not `@fontsource-variable/`: two weights are wanted, and two static cuts are
+smaller than one variable file carrying a width axis that will never be used.
+The Indic packages' own `latin` subsets are **excluded** — copying them puts a second Latin in
+the stack and makes the `unicode-range` binding ambiguous, which is the failure the binding
+exists to prevent.
+Latin `latin` and `latin-ext` are **merged into one file per weight** with `pyftsubset`.
+Fontsource splits them so a site that never uses accented characters can skip the second file;
+IAST appears on every reference page here, so the split buys two requests for content that
+always both load.
+No synthesised italics for Devanagari or Gujarati — neither script has an italic tradition and
+an oblique shears the शिरोरेखा.
+**Font binaries are committed.** They are OFL and the repo is their proper home. The
+never-commit rule is about the BAPS scans, not about assets generally. `OFL.txt` travels with
+the files, as the licence requires.
+
+**2026-08-18 — Light palette. Dark mode deferred, not rejected.**
+Cool, pale, restrained; body text near-black at full contrast. Dark is deferred for a reason
+specific to this site rather than taste: light-on-dark blooms, so strokes thicken optically
+and counters close. Devanagari at 400 on a near-black ground smears conjuncts and thickens the
+शिरोरेखा toward a bar — dark is the **harder** mode for this script, not the easier one.
+Recorded because a dark mockup will look good again and this will otherwise be re-argued. When
+it returns it is a token swap plus its own contrast pass, possibly at a heavier Devanagari
+weight, and it comes after light rather than instead of it.
+
+**2026-08-18 — How a reference entry presents.**
+Settled together because they are one page's worth of decisions:
+**Provenance sits above the headword**, as a thin line — source code, page, date. It reads as
+a filing reference before the reader meets the word, which is the right order for a claim
+about the whole entry.
+**Glosses are stacked full-width labelled rows**, one per language, never columns. Three
+columns of Devanagari or Gujarati give roughly ten characters a line.
+**Empty fields render their label with an em-dash**, never hidden. The journal is honest about
+its gaps.
+**No drop caps.** Devanagari has no floatable first letter — the headline stroke runs
+continuously and a matra can precede the consonant it modifies.
+**Paradigm tables render at full height** — eight rows for `declensions`, including सम्बोधन —
+so the shape does not change when real data lands. No horizontal banding: it competes with
+Devanagari's headline stroke. On mobile, horizontal scroll with a sticky first column;
+stacking destroys the grid, and the grid is what is being memorised.
+**No unsourced data visualisations.** Generalised from a generated mockup that displayed a
+corpus-frequency chart: no source, no locator, unverifiable, and therefore impossible under the
+provenance rule. Anything on the page is a row someone can re-check.
+
+**2026-08-18 — Field labels are in the source's own terms; English is secondary.**
+Site chrome stays English — nav, search, buttons — per the primary-language decision. Field
+*labels* are not chrome. विभक्ति and वचन names, paradigm headers and collection field labels
+display in the source's own terms, with English small, secondary or on hover. Rendering
+"Nominative / Singular" makes the owner translate in his head between the site and the book he
+is examined on. `CONTENT-MODEL.md` already set this precedent by naming the person cells
+प्रथम / मध्यम / उत्तम.
+Field *names* stay ASCII `snake_case`. This is a display layer only.
+Held in **`src/data/labels.yaml`, configuration rather than a collection.** A collection would
+demand provenance rows for what is really a name-to-label translation table.
+**It ships empty.** Every non-English value in it is a term from a printed page, so it is an
+eighth blocked controlled list — and the largest, covering every field across nine
+collections. Listed under Open below.
+
+**2026-08-18 — Design-tool output is reference only; nothing from it enters the repo.**
+Shuffle and Stitch are used to see arrangement, density and hierarchy. No markup, no CSS, no
+colour values and no text are copied — the token layer and the metric overrides are the design
+system, and generated utility classes bypass both.
+The rule is not fastidiousness. Asked explicitly and repeatedly not to, a generator produced
+invented Devanagari, IAST, paradigm cells and a page citation, all of it plausible and none of
+it reviewable. That is exactly the error the owner cannot yet catch, and mockup text has a way
+of surviving into a real page. Screenshots, not markup.
+
 ---
 
 ## Open — decide before the first entry publishes
@@ -261,6 +364,13 @@ script. `nodejs_compat` and a `main` entry become necessary when the adapter arr
 - [ ] **The seven empty controlled lists** in `docs/CONTENT-MODEL.md` — गण, पद, लकार, लिंग,
       derivation, stem class, stem ending. `keystatic.config.ts` cannot be finalised without
       them, and Claude does not supply them.
+- [ ] **`src/data/labels.yaml`** — the display labels for every field across nine
+      collections, plus the विभक्ति, वचन and पुरुष names used as paradigm headers. Blocking
+      for page templates the way the seven lists are blocking for the config, and larger
+      than all seven together. Same rule: from a printed page, never from Claude.
+- [ ] **Specimen strings for the type run** — a dozen words the owner has read on a page:
+      a few Devanagari, a few Gujarati, one mixed line, one Latin line carrying the IAST
+      diacritics. `size-adjust` cannot be tuned against invented text.
 - [ ] **Author identity in JSON-LD.** Whether the `Person` behind the site is named, and
       under what name. Affects every page's structured data.
 - [ ] **JetBrains licence.** WebStorm currently shows a non-commercial-use badge. This

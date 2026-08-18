@@ -43,6 +43,11 @@ restarts in each book, so a locator is only meaningful with its book code.
 **Locator format:** `p. 31`. The book is carried by the `source` code, never repeated in the
 locator.
 
+**Folios are printed in Devanagari numerals; locators are recorded in Latin digits.** p. 31
+carries ३१ at the foot of the page. The transliteration is deliberate — locators sort, appear
+in URLs and hidden form fields, and match the `varga` integers — so a mismatch between the
+page and the citation is not an error to be fixed.
+
 #### Scan files are not citation units
 
 The PDFs are ZIP archives of JPEGs, one book split across several files. **Never cite a scan

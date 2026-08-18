@@ -306,6 +306,28 @@ the rule is that the owner has read the page.
 `vocabulary.word_type` is already filled from `BAPS-1` p. 10 and is the model for the rest:
 values in the source's own script, with the page recorded.
 
+### `src/data/labels.yaml` — the eighth blocked list
+
+Not a collection. **Configuration**: a translation table mapping each ASCII field name to the
+label shown on the page, in the source's own terms, with English secondary.
+
+```
+field_name:
+  gu: ""
+  hi: ""
+  en: ""
+```
+
+Covers every field across all nine collections, plus the विभक्ति, वचन and पुरुष names that
+head the paradigm tables. It is larger than the seven lists above put together, and it blocks
+page templates the way those block `keystatic.config.ts`.
+
+Held as a file rather than a collection because a collection would demand a `source` and
+`locator` on each row, and a label is not an entry. The terms in it still come from a printed
+page — noting where each set was read, in a comment at the head of the file, is enough.
+
+Decided 2026-08-18. Field *names* remain ASCII `snake_case`; this is a display layer only.
+
 ---
 
 ## Search and filtering
