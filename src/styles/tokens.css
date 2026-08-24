@@ -1,0 +1,52 @@
+/*
+ * Type scale, line-height, measure, spacing. Hand-written custom
+ * properties — no Tailwind, no CSS framework. No colour tokens: colour is
+ * Run 2 (docs/runs/RUN-1B-metrics.md, out of scope for this run).
+ *
+ * Font-family bindings (the lang="hi" / lang="gu" → one-Indic-family-per-
+ * element pattern, docs/DECISIONS.md 2026-08-18) are a page-template
+ * concern, out of scope here — see /specimen/ for the pattern demonstrated
+ * inline until page templates land.
+ */
+
+:root {
+  /* ---------------------------------------------------------------- */
+  /* Type scale — modular, ratio 1.25 (major third), base 1rem.        */
+  /* Few steps: two below base, three above.                          */
+  /* ---------------------------------------------------------------- */
+  --text-size--2: 0.64rem;   /* 10.24px */
+  --text-size--1: 0.8rem;    /* 12.8px  */
+  --text-size-0:  1rem;      /* 16px — base */
+  --text-size-1:  1.25rem;   /* 20px */
+  --text-size-2:  1.5625rem; /* ~25px */
+  --text-size-3:  1.953rem;  /* ~31px */
+
+  /* ---------------------------------------------------------------- */
+  /* Line-height — one value, unitless, applied to every script.       */
+  /* Tuned to Devanagari: the Run 1b override table (fonts.css) gives  */
+  /* every family a shared 1.4123em metrics box (शिरोरेखा-to-deepest-  */
+  /* mark, Devanagari and Gujarati both accounted for). 1.5 sits just  */
+  /* above that floor rather than at it, so adjacent lines' marks      */
+  /* never touch. Latin reads slightly airy at this value on its own — */
+  /* that is the accepted trade (docs/runs/RUN-1B-metrics.md), not a   */
+  /* bug to correct here.                                              */
+  /* ---------------------------------------------------------------- */
+  --line-height: 1.5;
+
+  /* ---------------------------------------------------------------- */
+  /* Measure — line length. ch is defined per-element by that          */
+  /* element's own font, so this travels correctly across scripts.     */
+  /* ---------------------------------------------------------------- */
+  --measure: 65ch;
+
+  /* ---------------------------------------------------------------- */
+  /* Spacing — few steps, rem-based.                                   */
+  /* ---------------------------------------------------------------- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+}

@@ -1,13 +1,18 @@
 ---
-// Dev-only type specimen for Run 1 (docs/runs/RUN-1-typography.md).
-// Not linked from anywhere. Skipped in the production build.
+// Dev-only type specimen for Run 1 (docs/runs/RUN-1-typography.md) and
+// Run 1b (docs/runs/RUN-1B-metrics.md). Not linked from anywhere. Skipped
+// in the production build.
 //
-// All text below is a bracketed placeholder literal, not a real word in any
-// script — see /CLAUDE.md, "Never write Sanskrit," which also covers IAST,
-// since IAST is a transliteration of Sanskrit. The owner has not yet
-// supplied specimen strings (docs/DECISIONS.md, Open items), so this page
-// cannot be tuned and Run 1b has not started. Replace the placeholders with
-// the owner's strings when they arrive, then proceed to 1b.
+// Content rules — see /CLAUDE.md, "Never write Sanskrit":
+// - The Devanagari and Gujarati text below comes only from
+//   src/data/specimen.yaml, read-only in this run. Nothing here is typed.
+// - The IAST row (below) is generated from the Latin unicode-range already
+//   declared in fonts.css, one isolated codepoint at a time — enumerating a
+//   font's own contents is not authoring text.
+// - The cmap grid is generated from src/data/generated/cmap.generated.json,
+//   itself produced by scripts/gen-run1b-metrics.py, which intersects each
+//   Indic font's actual cmap with its declared unicode-range. The JSON is
+//   gitignored and regenerable; nothing here is typed either.
 
 export const prerender = true;
 
@@ -15,64 +20,374 @@ if (import.meta.env.PROD) {
   return new Response(null, { status: 404 });
 }
 
-import '../styles/fonts.css';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import * as yaml from 'js-yaml';
+import fontsCssRaw from '../styles/fonts.css?raw';
+import cmapData from '../data/generated/cmap.generated.json';
 
+import '../styles/fonts.css';
+import '../styles/tokens.css';
+
+// ---------------------------------------------------------------------
+// specimen.yaml — read-only. Nothing added, nothing corrected.
+// ---------------------------------------------------------------------
+const specimenPath = fileURLToPath(new URL('../data/specimen.yaml', import.meta.url));
+const specimen = yaml.load(fs.readFileSync(specimenPath, 'utf-8'));
+
+const SLOT_ORDER = ['plain', 'tall', 'deep', 'dense', 'long'];
 const sizes = [16, 24, 32, 48, 64];
 
-const families = [
-  { label: 'Noto Sans (Latin)', family: "'Noto Sans'", placeholder: '[Latin sample — awaiting specimen string]' },
-  { label: 'Noto Sans Devanagari', family: "'Noto Sans Devanagari'", placeholder: '[Devanagari sample — awaiting specimen string]' },
-  { label: 'Noto Sans Gujarati', family: "'Noto Sans Gujarati'", placeholder: '[Gujarati sample — awaiting specimen string]' },
-  { label: 'Noto Serif (Latin)', family: "'Noto Serif'", placeholder: '[Latin sample — awaiting specimen string]' },
-  { label: 'Noto Serif Devanagari', family: "'Noto Serif Devanagari'", placeholder: '[Devanagari sample — awaiting specimen string]' },
-  { label: 'Noto Serif Gujarati', family: "'Noto Serif Gujarati'", placeholder: '[Gujarati sample — awaiting specimen string]' },
+const scripts = [
+  {
+    key: 'devanagari',
+    lang: 'hi',
+    label: 'Devanagari',
+    sans: 'Noto Sans Devanagari',
+    serif: 'Noto Serif Devanagari',
+  },
+  {
+    key: 'gujarati',
+    lang: 'gu',
+    label: 'Gujarati',
+    sans: 'Noto Sans Gujarati',
+    serif: 'Noto Serif Gujarati',
+  },
 ];
+
+// ---------------------------------------------------------------------
+// Mixed line — split on word boundaries only (specimen.yaml's own
+// promise), script of each token detected mechanically from its first
+// codepoint's Unicode block. No token is retyped or reordered.
+// ---------------------------------------------------------------------
+function detectScript(token) {
+  const cp = token.codePointAt(0);
+  if (cp >= 0x0900 && cp <= 0x097f) return 'devanagari';
+  if (cp >= 0x0a80 && cp <= 0x0aff) return 'gujarati';
+  return 'latin';
+}
+
+const scriptFamily = {
+  devanagari: 'Noto Sans Devanagari',
+  gujarati: 'Noto Sans Gujarati',
+  latin: 'Noto Sans',
+};
+const scriptLang = { devanagari: 'hi', gujarati: 'gu', latin: 'en' };
+
+const mixedTokens = specimen.mixed.split(' ').map((text) => {
+  const script = detectScript(text);
+  return { text, script, lang: scriptLang[script], family: scriptFamily[script] };
+});
+
+// ---------------------------------------------------------------------
+// Step 2 — IAST row, generated from fonts.css's own declared Latin
+// unicode-range. Read the range from the file; nothing here is retyped.
+// ---------------------------------------------------------------------
+function extractUnicodeRange(css, family, weight, style) {
+  const blockRe = /@font-face\s*\{([^}]*)\}/gs;
+  let match;
+  while ((match = blockRe.exec(css))) {
+    const block = match[1];
+    const famM = block.match(/font-family:\s*'([^']+)'/);
+    const weightM = block.match(/font-weight:\s*([0-9]+)/);
+    const styleM = block.match(/font-style:\s*(\w+)/);
+    if (famM?.[1] === family && weightM?.[1] === weight && styleM?.[1] === style) {
+      const rangeM = block.match(/unicode-range:\s*([^;]+);/s);
+      if (rangeM) return rangeM[1];
+    }
+  }
+  throw new Error(`No @font-face for ${family} ${weight} ${style} in fonts.css`);
+}
+
+function parseUnicodeRange(rangeStr) {
+  const cps = new Set();
+  for (const raw of rangeStr.split(',')) {
+    const t = raw.trim();
+    let m = t.match(/^U\+([0-9A-Fa-f]+)-([0-9A-Fa-f]+)$/);
+    if (m) {
+      const lo = parseInt(m[1], 16);
+      const hi = parseInt(m[2], 16);
+      for (let c = lo; c <= hi; c++) cps.add(c);
+      continue;
+    }
+    m = t.match(/^U\+([0-9A-Fa-f]+)$/);
+    if (m) {
+      cps.add(parseInt(m[1], 16));
+      continue;
+    }
+    throw new Error(`Unparsed unicode-range token: ${t}`);
+  }
+  return [...cps].sort((a, b) => a - b);
+}
+
+// Cc (control) and Cf (format, e.g. bidi overrides, ZWNJ padding in the
+// merged Latin subset) codepoints have no visible glyph by Unicode's own
+// definition of the category — excluded by that formal property, not by
+// hand-picking which ones "look right" to skip.
+const isVisible = (cp) => !/\p{Cc}|\p{Cf}/u.test(String.fromCodePoint(cp));
+
+const latinRangeStr = extractUnicodeRange(fontsCssRaw, 'Noto Sans', '400', 'normal');
+const iastCodepoints = parseUnicodeRange(latinRangeStr).filter(isVisible);
+
+// ---------------------------------------------------------------------
+// Step 3 — cmap grid. src/data/generated/cmap.generated.json already
+// holds, per script, the intersection of each font's actual cmap with
+// its declared unicode-range (Sans and Serif are identical per script —
+// verified in the generator; the grid below renders Sans, the face that
+// actually carries a Sanskrit form per the 2026-08-18 "set one way
+// everywhere" decision).
+// ---------------------------------------------------------------------
+const cmapSizes = [16, 32, 64];
 ---
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Type specimen (dev only) — sanskritgrammar.com</title>
+  <title>Type specimen (dev only) — sanskritgrammar.com — Run 1b</title>
   <meta name="robots" content="noindex, nofollow" />
 
-  <!-- Preload: three files only (Run 1a step 7) -->
   <link rel="preload" href="/fonts/noto-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="/fonts/noto-sans-devanagari-400-normal.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="/fonts/noto-sans-gujarati-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+
+  <style>
+    body { font-family: 'Noto Sans', sans-serif; margin: 2rem; }
+    section { margin-bottom: 3rem; border-top: 1px solid #ccc; padding-top: 1rem; }
+    .slot-label { font-family: 'Noto Sans', sans-serif; font-size: 12px; color: #666; margin: 0.5em 0 0.1em; }
+    .row { margin: 0.15em 0; }
+    .cmap-grid { display: flex; flex-wrap: wrap; gap: 2px; }
+    .cmap-cell { border: 1px solid #ddd; text-align: center; padding: 2px 4px; min-width: 2.5em; }
+    .cmap-cp { display: block; font-family: 'Noto Sans', sans-serif; font-size: 9px; color: #888; }
+    pre#run1b-report { background: #111; color: #0f0; padding: 1em; overflow: auto; max-height: 60vh; font-size: 12px; }
+    [lang="hi"] { font-family: 'Noto Sans Devanagari', sans-serif; }
+    [lang="gu"] { font-family: 'Noto Sans Gujarati', sans-serif; }
+  </style>
 </head>
 <body>
   <p><strong>Dev-only specimen. Not in the production build, not linked from anywhere.</strong></p>
-  <p>
-    Every string below is a bracketed placeholder literal. Run 1b (metric tuning,
-    line-height, size scale) is blocked until the owner supplies real specimen
-    strings — see docs/runs/RUN-1-typography.md and docs/DECISIONS.md, Open items.
-  </p>
+  <p>Run 1b: metric reconciliation and tokens. See docs/runs/RUN-1B-metrics.md.</p>
 
-  {families.map(({ label, family, placeholder }) => (
-    <section>
-      <h2>{label}</h2>
-      {sizes.map((size) => (
-        <p style={`font-family: ${family}, sans-serif; font-size: ${size}px; margin: 0.25em 0;`}>
-          {placeholder} ({size}px)
-        </p>
-      ))}
-    </section>
-  ))}
+  <section id="results">
+    <h2>Measurement &amp; verification results (steps 4 and 8)</h2>
+    <p>Populated client-side after webfonts load. Ink measured from rendered canvas pixels, not read from markup.</p>
+    <pre id="run1b-report">measuring…</pre>
+  </section>
 
-  <section>
-    <h2>Mixed-script line</h2>
-    <p style="font-size: 32px; margin: 0.25em 0;">
-      <span style="font-family: 'Noto Sans', sans-serif;">[Latin — awaiting specimen string] </span>
-      <span style="font-family: 'Noto Sans Devanagari', sans-serif;">[Devanagari — awaiting specimen string] </span>
-      <span style="font-family: 'Noto Sans Gujarati', sans-serif;">[Gujarati — awaiting specimen string]</span>
+  <section id="slots">
+    <h2>1. specimen.yaml slots</h2>
+    {scripts.map(({ key, lang, label, sans, serif }) => (
+      <div>
+        <h3>{label} — {'{'}lang="{lang}"{'}'}</h3>
+        {SLOT_ORDER.filter((slot) => specimen[key][slot]).map((slot) => (
+          <div>
+            <p class="slot-label">{key}.{slot} — Sans</p>
+            {sizes.map((size) => (
+              <p class="row" lang={lang} style={`font-family: '${sans}', sans-serif; font-size: ${size}px;`}>
+                {specimen[key][slot]}
+              </p>
+            ))}
+            <p class="slot-label">{key}.{slot} — Serif</p>
+            {sizes.map((size) => (
+              <p class="row" lang={lang} style={`font-family: '${serif}', serif; font-size: ${size}px;`}>
+                {specimen[key][slot]}
+              </p>
+            ))}
+          </div>
+        ))}
+      </div>
+    ))}
+  </section>
+
+  <section id="mixed">
+    <h2>1b. Mixed-script line — one {'<span>'} per token</h2>
+    <p style="font-size: 32px;" id="mixed-line">
+      {mixedTokens.map((tok, i) => (
+        <span
+          id={`mixed-token-${i}`}
+          lang={tok.lang}
+          data-script={tok.script}
+          data-family={tok.family}
+          style={`font-family: '${tok.family}', sans-serif;`}
+        >{tok.text}</span>
+      )).reduce((acc, el) => (acc.length === 0 ? [el] : [...acc, ' ', el]), [])}
     </p>
   </section>
 
-  <section>
-    <h2>Latin line carrying IAST diacritics</h2>
-    <p style="font-family: 'Noto Sans', sans-serif; font-size: 32px; margin: 0.25em 0;">
-      [IAST sample — awaiting specimen string; not written here because IAST is a transliteration of Sanskrit]
+  <section id="line-height">
+    <h2>6. Line-height — one value (tokens.css --line-height), tuned to Devanagari</h2>
+    <p>
+      <code>--line-height: 1.5</code>, unitless, applied to Latin, Devanagari and Gujarati alike.
+      Each block below repeats a specimen.yaml <code>long</code> string (mechanically, via
+      <code>Array.fill().join(' ')</code> — nothing retyped) so it wraps across several lines at
+      Boxes are narrowed to 320px (not <code>--measure</code>, which is wide enough at this
+      font-size not to wrap) purely to force several lines for this check.
+    </p>
+    <div style={`max-width: 320px; font-family: 'Noto Sans', sans-serif; font-size: 20px; line-height: var(--line-height); border: 1px dashed #ccc; padding: 0.5em; margin-bottom: 1em;`}>
+      Run 1b tunes size-adjust and the metric overrides from rendered ink, then picks one
+      line-height for every script. Run 1b tunes size-adjust and the metric overrides from
+      rendered ink, then picks one line-height for every script.
+    </div>
+    <div lang="hi" style={`max-width: 320px; font-family: 'Noto Sans Devanagari', sans-serif; font-size: 20px; line-height: var(--line-height); border: 1px dashed #ccc; padding: 0.5em; margin-bottom: 1em;`}>
+      {Array(10).fill(specimen.devanagari.long).join(' ')}
+    </div>
+    <div lang="gu" style={`max-width: 320px; font-family: 'Noto Sans Gujarati', sans-serif; font-size: 20px; line-height: var(--line-height); border: 1px dashed #ccc; padding: 0.5em;`}>
+      {Array(10).fill(specimen.gujarati.long).join(' ')}
+    </div>
+  </section>
+
+  <section id="iast">
+    <h2>2. IAST row — generated from fonts.css's Latin unicode-range</h2>
+    <p>{iastCodepoints.length} visible codepoints (Cc/Cf excluded by Unicode category).</p>
+    <p style="font-family: 'Noto Sans', sans-serif; font-size: 24px; word-break: break-all;">
+      {iastCodepoints.map((cp) => String.fromCodePoint(cp)).join(' ')}
+    </p>
+    <p style="font-family: 'Noto Serif', serif; font-size: 24px; word-break: break-all;">
+      {iastCodepoints.map((cp) => String.fromCodePoint(cp)).join(' ')}
     </p>
   </section>
+
+  <section id="cmap">
+    <h2>3. cmap grid — Devanagari and Gujarati, Sans, from each font's actual cmap</h2>
+    {['devanagari', 'gujarati'].map((script) => (
+      <div lang={script === 'devanagari' ? 'hi' : 'gu'}>
+        <h3>{script} — {cmapData[script].sans.length} codepoints (cmap ∩ declared range)</h3>
+        {cmapSizes.map((size) => (
+          <div>
+            <p class="slot-label">{size}px</p>
+            <div class="cmap-grid">
+              {cmapData[script].sans.map((cp) => (
+                <div class="cmap-cell" style={`font-family: '${script === 'devanagari' ? 'Noto Sans Devanagari' : 'Noto Sans Gujarati'}', sans-serif; font-size: ${size}px;`}>
+                  {String.fromCodePoint(cp)}
+                  <span class="cmap-cp">U+{cp.toString(16).toUpperCase().padStart(4, '0')}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    ))}
+  </section>
+
+  <script define:vars={{
+    devanagari: specimen.devanagari,
+    gujarati: specimen.gujarati,
+  }}>
+    // Steps 4 and 8 — ink measured from rendered canvas pixels.
+    // Runs client-side only; nothing here is authored text, it reads the
+    // same specimen strings already rendered above.
+
+    function measureInk(text, family, sizePx) {
+      const canvas = document.createElement('canvas');
+      const baselineY = Math.round(sizePx * 1.6);
+      canvas.width = Math.ceil(sizePx * text.length * 1.4) + 80;
+      canvas.height = Math.round(sizePx * 3.2);
+      const ctx = canvas.getContext('2d');
+      ctx.font = `${sizePx}px "${family}"`;
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillStyle = '#000';
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillText(text, 20, baselineY);
+      const { data, width, height } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      let top = null, bottom = null, left = null, right = null;
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const alpha = data[(y * width + x) * 4 + 3];
+          if (alpha > 10) {
+            if (top === null) top = y;
+            bottom = y;
+            if (left === null || x < left) left = x;
+            if (right === null || x > right) right = x;
+          }
+        }
+      }
+      if (top === null) return null;
+      return {
+        aboveBaseline: baselineY - top,
+        belowBaseline: bottom - baselineY,
+        inkHeight: bottom - top,
+        inkWidth: right - left + 1,
+      };
+    }
+
+    async function run() {
+      await document.fonts.ready;
+      const SIZE = 500;
+      const report = { size_px: SIZE, unitsPerEm_assumed: 1000, measurements: {}, verification: {} };
+
+      const targets = [
+        ['latin_x_sans', 'x', 'Noto Sans'],
+        ['latin_x_serif', 'x', 'Noto Serif'],
+        ['devanagari_plain_sans', devanagari.plain, 'Noto Sans Devanagari'],
+        ['devanagari_plain_serif', devanagari.plain, 'Noto Serif Devanagari'],
+        ['devanagari_tall_sans', devanagari.tall, 'Noto Sans Devanagari'],
+        ['devanagari_tall_serif', devanagari.tall, 'Noto Serif Devanagari'],
+        ['devanagari_deep_sans', devanagari.deep, 'Noto Sans Devanagari'],
+        ['devanagari_deep_serif', devanagari.deep, 'Noto Serif Devanagari'],
+        ['gujarati_plain_sans', gujarati.plain, 'Noto Sans Gujarati'],
+        ['gujarati_plain_serif', gujarati.plain, 'Noto Serif Gujarati'],
+        ['gujarati_tall_sans', gujarati.tall, 'Noto Sans Gujarati'],
+        ['gujarati_tall_serif', gujarati.tall, 'Noto Serif Gujarati'],
+        ['gujarati_deep_sans', gujarati.deep, 'Noto Sans Gujarati'],
+        ['gujarati_deep_serif', gujarati.deep, 'Noto Serif Gujarati'],
+      ];
+
+      for (const [key, text, family] of targets) {
+        report.measurements[key] = measureInk(text, family, SIZE);
+      }
+
+      // Step 8a — measure the mixed line token by token. Two independent
+      // ink-facing signals, neither of which is "read the lang attribute
+      // and trust it":
+      //  1. A real canvas render of the token's own text in the intended
+      //     face — non-empty ink, with a measured pixel width, is direct
+      //     evidence glyphs were actually drawn (a missing-glyph run
+      //     produces empty or near-zero-width ink).
+      //  2. document.fonts.check() against the browser's own loaded
+      //     FontFace + unicode-range, i.e. the real engine that will
+      //     paint the page — not a re-implementation of the unicode-range
+      //     parser used elsewhere on this page.
+      const mixedResults = [];
+      const spans = document.querySelectorAll('#mixed-line span[id^="mixed-token-"]');
+      for (const span of spans) {
+        const text = span.textContent;
+        const script = span.dataset.script;
+        const intendedFamily = span.dataset.family;
+        const rect = span.getBoundingClientRect();
+
+        const inkIntended = measureInk(text, intendedFamily, 200);
+        const engineCoversText = document.fonts.check(`16px "${intendedFamily}"`, text);
+
+        mixedResults.push({
+          text,
+          script,
+          intendedFamily,
+          onPageWidthPx: Math.round(rect.width * 100) / 100,
+          inkNonEmpty: inkIntended !== null,
+          inkWidthPx: inkIntended?.inkWidth ?? null,
+          fontsCheckCoversAllCodepoints: engineCoversText,
+          rendersFromIntendedFace: inkIntended !== null && engineCoversText,
+        });
+      }
+      report.verification.mixed_line_token_by_token = mixedResults;
+
+      // Step 8b — confirm no element on the page declares two Indic
+      // families in its resolved font-family stack.
+      const indicFamilies = ['Noto Sans Devanagari', 'Noto Serif Devanagari', 'Noto Sans Gujarati', 'Noto Serif Gujarati'];
+      const offenders = [];
+      document.querySelectorAll('body *').forEach((el) => {
+        const ff = getComputedStyle(el).fontFamily;
+        const present = indicFamilies.filter((fam) => ff.includes(fam));
+        if (present.length > 1) {
+          offenders.push({ element: el.tagName + (el.id ? '#' + el.id : ''), families: present, fontFamily: ff });
+        }
+      });
+      report.verification.elements_declaring_two_indic_families = offenders;
+
+      document.getElementById('run1b-report').textContent = JSON.stringify(report, null, 2);
+      window.__run1bReport = report;
+    }
+
+    run();
+  </script>
 </body>
 </html>
