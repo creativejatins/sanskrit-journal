@@ -1,0 +1,32 @@
+# Specimen strings — for measurement only.
+#
+# NOT content. Never published, never rendered outside /specimen/, and it carries
+# no source or locator because it is not an entry. See docs/DECISIONS.md,
+# 2026-08-18, on size-adjust being tuned from rendered ink.
+#
+# Supplied by the owner from pages he has read. Every string was checked by
+# codepoint: each is wholly within one Unicode block, except `mixed`, where the
+# script changes only at word boundaries. Five accidental script mixes were caught
+# and corrected during entry — re-run the check if these are ever edited.
+#
+# The IAST row and the cmap grid are generated mechanically by /specimen/ from the
+# unicode-range declarations in src/styles/fonts.css. Nothing here.
+
+devanagari:
+  tall: "शीर्ष"                 # mark above the headline
+  deep: "फूंक"                  # mark below the baseline
+  dense: "राष्ट्र"              # stacked conjunct
+  plain: "कमल"                  # no marks above or below — size-adjust is tuned against this
+  long: "विश्वविद्यालय"         # longest form — for measure and wrapping
+
+gujarati:
+  tall: "શીર્ષ"                 # mark above the line (no शिरोरेखा in Gujarati)
+  deep: "ફૂંક"                  # mark below the baseline
+  dense: "રાષ્ટ્ર"              # stacked conjunct
+  plain: "કમલ"                  # no marks above or below — size-adjust is tuned against this
+  long: "યુનિવર્સિટી"           # longest form — for measure and wrapping
+
+# Scripts change at word boundaries only — this line tests whether the line box
+# holds when the font changes mid-line. Word order carries no meaning: it is a
+# list, not a sentence. Two tokens are reused from the slots above.
+mixed: "विशेषतः विशिष्ट शीर्ष शिरोच्छ्राय શીર્ષ કમલ specialized"

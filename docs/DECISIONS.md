@@ -401,9 +401,14 @@ Co-design gave shape harmony, not metric harmony, as the font-stack entry predic
       collections, plus the विभक्ति, वचन and पुरुष names used as paradigm headers. Blocking
       for page templates the way the seven lists are blocking for the config, and larger
       than all seven together. Same rule: from a printed page, never from Claude.
-- [ ] **Specimen strings for the type run** — a dozen words the owner has read on a page:
-      a few Devanagari, a few Gujarati, one mixed line, one Latin line carrying the IAST
-      diacritics. `size-adjust` cannot be tuned against invented text.
+- [ ] **Block-consistency validation in the CSV → YAML validator.** Every character in a
+      field must sit in the Unicode block its language declares. Five accidental script
+      mixes appeared across twelve specimen strings during entry — a Gujarati word ending
+      in a Devanagari character, a Devanagari word switching mid-token, two words joined
+      without a space. None was visible by eye; all were found by codepoint check. The
+      risk is highest on long compounds, which is most of `dhatus` and `declensions`.
+      A five-line check catches all of it; without it the same error publishes silently.
+      This is a requirement for the validator, not a new decision.
 - [ ] **Author identity in JSON-LD.** Whether the `Person` behind the site is named, and
       under what name. Affects every page's structured data.
 - [ ] **JetBrains licence.** WebStorm currently shows a non-commercial-use badge. This
@@ -412,6 +417,11 @@ Co-design gave shape harmony, not metric harmony, as the font-stack entry predic
 
 ## Closed
 
+- [x] **Specimen strings for the type run** — supplied 2026-08-24, in
+      `src/data/specimen.yaml`. Ten slots plus a mixed-script line, each verified
+      block-consistent by codepoint. The IAST row and cmap grid are generated
+      mechanically from the `unicode-range` declarations rather than typed, so no
+      transliteration is authored. Unblocks Run 1b.
 - [x] **`Book031`–`Book036`** — confirmed as तृतीयो भागः, recoded `BAPS-3`. 2026-08-14.
 - [x] **Primary language** — decided 2026-08-14, above.
 - [x] **Slug convention** — decided 2026-08-14, above.
