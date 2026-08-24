@@ -27,3 +27,7 @@ scans/
 scan-tmp/
 !public/**/*.jpg
 !public/**/*.jpeg
+
+# generated from fonts.css + public/fonts/ by scripts/gen-run1b-metrics.py —
+# regenerable, not authored; re-run the script rather than hand-editing.
+src/data/generated/
