@@ -348,6 +348,39 @@ invented Devanagari, IAST, paradigm cells and a page citation, all of it plausib
 it reviewable. That is exactly the error the owner cannot yet catch, and mockup text has a way
 of surviving into a real page. Screenshots, not markup.
 
+**2026-08-18 — One Indic family per element, driven by `lang`.**
+Noto's Devanagari and Gujarati ranges overlap on U+0951-0952, U+0964-0965, U+200C-200D,
+U+20B9, U+25CC and U+A830-A839. Overlapping ranges resolve by position in the `font-family`
+list, not by specificity, so any stack naming both families renders those codepoints
+non-deterministically.
+Rejected fix: stripping the shared codepoints from the Gujarati range. It looks correct and
+is wrong. `unicode-range` gates which codepoints a face may serve **at all**, not merely how
+a stack resolves — stripping U+0964 stopped Gujarati using its own danda even in an element
+naming only Gujarati. Gujarati's danda is 597 units against Devanagari's 622, drawn shorter
+to match Gujarati's proportions, and the strip discarded it. Rendered before and after in
+Chrome and measured by canvas ink: 179px against 186px.
+Adopted instead: **every element declares exactly one Indic family, driven by the `lang`
+attribute.** The ranges then never compete and each script keeps its own punctuation. If a
+combined Indic stack ever becomes unavoidable, Devanagari goes first.
+Recorded because the rejected fix will look right again to anyone meeting the overlap
+without knowing what `unicode-range` does.
+
+**2026-08-18 — `size-adjust` is tuned from rendered ink, not from `sxHeight`.**
+`sxHeight` reads 536 on five of six families, including both Indic ones. Devanagari has no
+x-height; the field is nominal. The height that must match Latin x-height is
+शिरोरेखा-to-baseline, which appears in no metrics table and has to be measured from rendered
+ink — the same canvas technique that settled the danda. Run 1b therefore ends at a visual
+check rather than a computed value.
+
+**2026-08-18 — Typo metrics govern; win metrics are disregarded.**
+`fsSelection` bit 7 (USE_TYPO_METRICS) is set in all six 400 files, and the OS/2 typo values
+match hhea throughout. Browsers honouring the bit take typo, so the win values — which
+diverge sharply, Noto Sans Devanagari at 1348/558 against 896/-408 — never reach the page and
+are not tuned against.
+The gap the overrides must close, all at unitsPerEm 1000: Latin 1069/-293; Sans Devanagari
+and Gujarati 896/-408; Serif Devanagari 930/-625, a 1555 line box against Serif Latin's 1362.
+Co-design gave shape harmony, not metric harmony, as the font-stack entry predicted.
+
 ---
 
 ## Open — decide before the first entry publishes
