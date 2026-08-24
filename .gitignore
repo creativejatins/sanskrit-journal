@@ -1,11 +1,29 @@
 node_modules/
 dist/
 .astro/
-.env
+.wrangler/
 .DS_Store
 .idea/
+
+# secrets — .env for Astro, .dev.vars for Wrangler
+.env*
+.dev.vars*
+
+# Claude Code — .claude/settings.json is committed, personal settings are not.
+# Claude Code writes this rule to the machine's global excludes, not the repo,
+# so it is repeated here to survive a fresh clone.
+.claude/settings.local.json
 
 # source scans — copyrighted, never commit
 *.pdf
 sources/
 scans/
+
+# extracted scan pages — the archives are .pdf but hold JPEGs inside, and an
+# unpacked page is the same all-rights-reserved material. Site imagery under
+# public/ is exempted below.
+*.jpg
+*.jpeg
+scan-tmp/
+!public/**/*.jpg
+!public/**/*.jpeg
