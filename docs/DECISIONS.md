@@ -419,53 +419,100 @@ in either direction.
 
 **2026-08-26 — Color system settled; dark mode ships rather than deferring.**
 Light: `#fafbfc` bg, `#f1f4f7` surface, `#14181c` text, `#454e57` muted, `#1d4e89` link,
-`#143a66` link-hover. Dark: `#14181c` bg, `#1b2126` surface, `#dde2e6` text, `#c3cad0`
-body, `#aab4bd` muted, `#8fb8e8` link, `#b7d3f2` link-hover. Cool and pale as decided on
+`#143a66` link-hover. Dark: `#14181c` bg, `#1b2126` surface, `#dde2e6` text, `#c3cad0` body,
+`#aab4bd` muted, `#8fb8e8` link, `#b7d3f2` link-hover. Cool and pale as decided on
 2026-08-18; no warm tones.
-
 **Amends the dark-mode deferral above.** Dark was deferred because it doubles the contrast
 work across three scripts and light should come first. Light did come first, and dark then
 cost one `[data-theme="dark"]` override block. The default follows `prefers-color-scheme`,
 with a manual toggle setting `data-theme` on `<html>` — neither theme is chosen on the
 reader's behalf.
-
-**In dark only, body text is dimmer than heading text.** `--color-text` at 13.67:1 reads
-well as a heading and harshly across a paragraph: light-on-dark ink spreads optically, and
-contrast is a floor to clear rather than a number to maximise. `--color-text-body` sits at
-10.77:1 against bg, 9.81:1 against surface. Light mode has no split — the two tokens are
-equal there, because dark-on-light does not bloom.
-
-**A Sanskrit form takes `--color-text-body` in both themes, everywhere it appears.** It
-cannot shift between heading-bright and body-dim depending on where it lands; that would
-break the one-face-one-weight-one-color rule of 2026-08-18. The dimmer, more
-bloom-resistant value is the one that holds in both. This includes a link wrapping a
-Sanskrit form, which takes the body color rather than the link color and is distinguished
-by underline weight instead.
-
-`--color-text-muted` clears 7:1 on both bg and surface in both themes — light 8.17 and
-7.67, dark 8.47 and 7.72. That pairing is the one that matters, because provenance strips
-are muted text on a raised surface and provenance is the site's credibility line.
-
+**In dark only, body text is dimmer than heading text.** `--color-text` at 13.67:1 reads well
+as a heading and harshly across a paragraph: light-on-dark ink spreads optically, and contrast
+is a floor to clear rather than a number to maximise. `--color-text-body` sits at 10.77:1
+against bg, 9.81:1 against surface. Light mode has no split — the two tokens are equal there,
+because dark-on-light does not bloom.
+**A Sanskrit form takes `--color-text-body` in both themes, everywhere it appears.** It cannot
+shift between heading-bright and body-dim depending on where it lands; that would break the
+one-face-one-weight-one-color rule of 2026-08-18. The dimmer, more bloom-resistant value is
+the one that holds in both. This includes a link wrapping a Sanskrit form, which takes the
+body color rather than the link color and is distinguished by underline weight instead.
+`--color-text-muted` clears 7:1 on both bg and surface in both themes — light 8.17 and 7.67,
+dark 8.47 and 7.72. That pairing is the one that matters, because provenance strips are muted
+text on a raised surface and provenance is the site's credibility line.
 `--color-border-strong` clears its 3:1 UI floor and fails AAA in both themes. AAA does not
 apply to non-text contrast; no action.
-
 Verified in Chrome by computed style rather than by declaration, then judged by eye before
 being recorded. The palette has no external ground truth — only the contrast arithmetic and
 the owner's own reading of it.
 
 **2026-08-26 — US spelling throughout.**
-`color`, not `colour`, in filenames, tokens, prose, comments and reports. The CSS property
-is `color`, so US spelling is the only choice that keeps the codebase internally
-consistent. Recorded because Run 2 shipped as `colour` and had to be renamed after the
-fact.
+`color`, not `colour`, in filenames, tokens, prose, comments and reports. The CSS property is
+`color`, so US spelling is the only choice that keeps the codebase internally consistent.
+Recorded because Run 2 shipped as `colour` and had to be renamed after the fact.
+
+**2026-08-26 — Site name, tagline and navigation.**
+The site is **Sanskrit Grammar**, matching the domain, with a tagline carrying the journal
+framing — a beginner's notes, with sources. A name that differs from the address confuses
+readers and gains nothing, and `docs/PROJECT.md` already holds that nothing published should
+have to move. The notes-not-authority framing belongs in the tagline and on About, where it
+can be stated properly, rather than compressed into a name.
+Header navigation: **Syllabus · Lessons · Texts · Reference · About**, with `/reference/` a hub
+linking धातु, vocabulary, अव्यय, conjugations and declensions rather than five top-level items.
+Rejected: naming the site "Sanskrit Journal", or after the owner.
+
+**2026-08-26 — Fast lookup is search, not navigation.**
+The owner's own use is mid-revision recall — reaching a धातु or a विभक्ति without navigating.
+No navigation structure delivers that, and adding top-level items to approximate it makes the
+header worse without solving it.
+The answer is a **build-time headword index and reverse-lookup index**, already permitted
+explicitly in `/CLAUDE.md`: generated, disposable, regenerable from Git, and not a database.
+Not built yet; recorded so that when it is, it is not mistaken for the parked API creeping
+back in.
+Consequence for the content model: search runs on ASCII, so the `_iast` field and the
+ASCII-folded slugs are what make it possible. That raises the cost of the open IAST
+provenance question rather than settling it.
+
+**2026-08-26 — Content licence: CC BY 4.0.**
+Free to use with attribution. Specifically **not** BY-SA: share-alike would encumber the
+parked commercial API if it ever reuses journal content, and that is the one scenario the
+licence must stay out of the way of. Goes in the repo and the site footer.
+This licenses the owner's own prose and the arrangement. It does not and cannot license
+anything from the BAPS books, none of which is reproduced.
+
+**2026-08-26 — The footer links to the correction form, never to an address.**
+The link reads **Corrections** and points at the form decided on 2026-08-13. The dedicated
+address exists as the form's delivery target and is never published — an address on a public
+page is a spam target, and Turnstile already guards the form. No `mailto:` anywhere on the
+site.
+
+**2026-08-26 — The owner is named, in the JSON-LD and on the site.**
+A journal is a personal record, and "these are my notes, here is the page I took them from" is
+what makes it trustworthy. An anonymous author undercuts the framing the whole site rests on.
+Named as `Person` in the structured data, generated per the 2026-08-14 rule, and on About. No
+credential, title or honorific is claimed — the framing is beginner, and the structured data
+says nothing the prose does not.
+Rejected: publishing anonymously. It reads as evasive on a site whose entire claim is that its
+sources are visible.
+
+**2026-08-26 — Paradigm words are entered as printed, never substituted.**
+Considered and rejected: swapping the word a source declines for a different one, so entries
+look less like the book. It is the wrong instinct in three ways. The substitute word has no
+source — trading a cited fact for an uncited one is a worse position, not a safer one.
+Different stems decline differently, so substitution changes the data rather than disguising
+it. And the owner is examined on this syllabus, so the table he revises from should be the
+table he is tested on.
+The settled position stands and is the strong one: a paradigm's cells are facts of the
+language, not authored expression. Enter them as printed, cite the page, write the surrounding
+prose in the owner's own words. What is authored — the explaining, the examples, the
+exercises, the reading passages — stays out entirely.
+Recorded because the impulse to disguise will return, and it looks like caution while actually
+weakening both the citation and the revision value.
 
 ---
 
 ## Open — decide before the first entry publishes
 
-- [ ] **Content licence.** The site is free to use; that needs saying explicitly. A private
-      repo does not defer this — the content is published either way. Pick one, put it in
-      the repo and the site footer.
 - [ ] **Where IAST comes from.** Every collection with a Devanagari headword also carries an
       `_iast` field, and slugs are ASCII-folded from it — so a wrong transliteration is
       permanent, not just visible. No source currently in `docs/SOURCES.md` prints IAST.
@@ -494,13 +541,14 @@ fact.
       risk is highest on long compounds, which is most of `dhatus` and `declensions`.
       A five-line check catches all of it; without it the same error publishes silently.
       This is a requirement for the validator, not a new decision.
-- [ ] **Author identity in JSON-LD.** Whether the `Person` behind the site is named, and
-      under what name. Affects every page's structured data.
 - [ ] **JetBrains licence.** WebStorm currently shows a non-commercial-use badge. This
       project has a commercial API in its future; the parked project removed OrbStack for
       the same reason. Confirm the position and record it.
 
 ## Closed
+
+- [x] **Content licence** — CC BY 4.0, not BY-SA. 2026-08-26.
+- [x] **Author identity in JSON-LD** — the owner is named, without credential. 2026-08-26.
 
 - [x] **Specimen strings for the type run** — supplied 2026-08-24, in
       `src/data/specimen.yaml`. Ten slots plus a mixed-script line, each verified
