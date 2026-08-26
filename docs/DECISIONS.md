@@ -270,8 +270,8 @@ conjuncts and no traditional stacked ligatures. A learner mapping screen to prin
 should not have to cross a typographic gap as well.
 
 **2026-08-18 — A Sanskrit form is set one way, everywhere.**
-One face, one weight, one colour — Noto Sans Devanagari — wherever it appears: headword,
-paradigm cell, heading, inline in prose. This generalises the standing rule against colouring
+One face, one weight, one color — Noto Sans Devanagari — wherever it appears: headword,
+paradigm cell, heading, inline in prose. This generalises the standing rule against coloring
 a Sanskrit form. A headword is a heading by position but **data** by nature, and if it renders
 serif as a title and sans in the cell below it, the same form looks like two things on one
 page. Overrides the serif-heading rule wherever the two conflict.
@@ -305,6 +305,10 @@ and counters close. Devanagari at 400 on a near-black ground smears conjuncts an
 Recorded because a dark mockup will look good again and this will otherwise be re-argued. When
 it returns it is a token swap plus its own contrast pass, possibly at a heavier Devanagari
 weight, and it comes after light rather than instead of it.
+*Amended 2026-08-26 — dark mode ships; see the color-system entry below. The prediction
+held: light came first, and dark then cost one override block plus a body-text split. The
+heavier Devanagari weight anticipated here proved unnecessary — no 500 or 600 cut of Noto
+Sans Devanagari is shipped, and dimming the foreground solved it instead.*
 
 **2026-08-18 — How a reference entry presents.**
 Settled together because they are one page's worth of decisions:
@@ -341,7 +345,7 @@ collections. Listed under Open below.
 
 **2026-08-18 — Design-tool output is reference only; nothing from it enters the repo.**
 Shuffle and Stitch are used to see arrangement, density and hierarchy. No markup, no CSS, no
-colour values and no text are copied — the token layer and the metric overrides are the design
+color values and no text are copied — the token layer and the metric overrides are the design
 system, and generated utility classes bypass both.
 The rule is not fastidiousness. Asked explicitly and repeatedly not to, a generator produced
 invented Devanagari, IAST, paradigm cells and a page citation, all of it plausible and none of
@@ -412,6 +416,48 @@ neutralised, and confirmed by ink widths differing per face (752/708/765/761px),
 distinct glyphs were drawn. The cause is that the highest ink in both `tall` slots is the same
 superscript mark, and Noto pins its top edge across all four faces. It does not govern the box
 in either direction.
+
+**2026-08-26 — Color system settled; dark mode ships rather than deferring.**
+Light: `#fafbfc` bg, `#f1f4f7` surface, `#14181c` text, `#454e57` muted, `#1d4e89` link,
+`#143a66` link-hover. Dark: `#14181c` bg, `#1b2126` surface, `#dde2e6` text, `#c3cad0`
+body, `#aab4bd` muted, `#8fb8e8` link, `#b7d3f2` link-hover. Cool and pale as decided on
+2026-08-18; no warm tones.
+
+**Amends the dark-mode deferral above.** Dark was deferred because it doubles the contrast
+work across three scripts and light should come first. Light did come first, and dark then
+cost one `[data-theme="dark"]` override block. The default follows `prefers-color-scheme`,
+with a manual toggle setting `data-theme` on `<html>` — neither theme is chosen on the
+reader's behalf.
+
+**In dark only, body text is dimmer than heading text.** `--color-text` at 13.67:1 reads
+well as a heading and harshly across a paragraph: light-on-dark ink spreads optically, and
+contrast is a floor to clear rather than a number to maximise. `--color-text-body` sits at
+10.77:1 against bg, 9.81:1 against surface. Light mode has no split — the two tokens are
+equal there, because dark-on-light does not bloom.
+
+**A Sanskrit form takes `--color-text-body` in both themes, everywhere it appears.** It
+cannot shift between heading-bright and body-dim depending on where it lands; that would
+break the one-face-one-weight-one-color rule of 2026-08-18. The dimmer, more
+bloom-resistant value is the one that holds in both. This includes a link wrapping a
+Sanskrit form, which takes the body color rather than the link color and is distinguished
+by underline weight instead.
+
+`--color-text-muted` clears 7:1 on both bg and surface in both themes — light 8.17 and
+7.67, dark 8.47 and 7.72. That pairing is the one that matters, because provenance strips
+are muted text on a raised surface and provenance is the site's credibility line.
+
+`--color-border-strong` clears its 3:1 UI floor and fails AAA in both themes. AAA does not
+apply to non-text contrast; no action.
+
+Verified in Chrome by computed style rather than by declaration, then judged by eye before
+being recorded. The palette has no external ground truth — only the contrast arithmetic and
+the owner's own reading of it.
+
+**2026-08-26 — US spelling throughout.**
+`color`, not `colour`, in filenames, tokens, prose, comments and reports. The CSS property
+is `color`, so US spelling is the only choice that keeps the codebase internally
+consistent. Recorded because Run 2 shipped as `colour` and had to be renamed after the
+fact.
 
 ---
 
