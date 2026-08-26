@@ -84,7 +84,7 @@ value — it will read slightly airy, and that is the accepted trade, not a bug 
 ## 7. `tokens.css`
 
 Modular scale with few steps, measure, spacing. Hand-written custom properties. No Tailwind,
-no CSS framework, no colour tokens — colour is Run 2.
+no CSS framework, no color tokens — color is Run 2.
 
 ## 8. Verify, then report
 
@@ -97,7 +97,7 @@ no CSS framework, no colour tokens — colour is Run 2.
 
 ## Out of scope
 
-Colour, page templates, `labels.yaml`, any content, the Cloudflare adapter. Raise if blocking;
+Color, page templates, `labels.yaml`, any content, the Cloudflare adapter. Raise if blocking;
 do not act.
 
 ## Report

@@ -1,0 +1,166 @@
+/*
+ * Base HTML element styles — Run 2 (docs/runs/RUN-2-color.md). Requires
+ * tokens.css and fonts.css to be loaded first; this file only consumes
+ * their custom properties and font-family names, it defines neither.
+ *
+ * No Tailwind, no CSS framework, consistent with Run 1/1b.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--color-bg);
+}
+
+/*
+ * body text uses --color-text-body, not --color-text. Equal in light;
+ * dark splits them (Run 2b adjustment) because the bright value read
+ * harsh over a full paragraph there, even though it was fine for
+ * headings and short labels — see tokens.css for the ratios.
+ */
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text-body);
+  font-family: 'Noto Sans', sans-serif;
+  line-height: var(--line-height);
+}
+
+/*
+ * Headings and strong text: the bright --color-text, not the body value.
+ * Noto Serif on headings is per the standing serif-heading rule
+ * (docs/DECISIONS.md, 2026-08-18). This is the chrome/English default only
+ * — a heading whose content is a Sanskrit headword needs a lang="hi" /
+ * lang="gu" override to Noto Sans Devanagari/Gujarati at the point of use
+ * (docs/DECISIONS.md, "A Sanskrit form is set one way, everywhere"), which
+ * is a page-template concern, not something this file can apply for it.
+ */
+h1,
+h2,
+h3,
+h4 {
+  font-family: 'Noto Serif', serif;
+  color: var(--color-text);
+  line-height: 1.2;
+}
+
+strong,
+b {
+  color: var(--color-text);
+}
+
+p {
+  max-width: var(--measure);
+}
+
+ul,
+ol {
+  max-width: var(--measure);
+  padding-left: 1.5em;
+  list-style-position: outside;
+}
+
+li + li {
+  margin-top: var(--space-1);
+}
+
+/*
+ * The one permitted short BAPS quotation (docs/PROJECT.md) renders here.
+ * A visible citation slot, not a generic indent — the surrounding <cite>
+ * is expected to carry the source code and locator.
+ */
+blockquote {
+  margin: var(--space-5) 0;
+  padding: var(--space-4) var(--space-5);
+  max-width: var(--measure);
+  background: var(--color-surface);
+  border-left: 3px solid var(--color-border-strong);
+}
+
+blockquote cite {
+  display: block;
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--text-size--1);
+  font-style: normal;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: var(--space-6) 0;
+}
+
+/*
+ * Links. Underlined by default — WCAG 1.4.1, color alone must not carry
+ * the affordance. No visited-color token (docs/runs/RUN-2-color.md, §1).
+ */
+a {
+  color: var(--color-link);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+a:hover {
+  color: var(--color-link-hover);
+}
+
+/*
+ * The Sanskrit-link override. A Devanagari or Gujarati string keeps one
+ * fixed color even as the content of an <a> — color is never how a
+ * Sanskrit form is marked as a link (docs/DECISIONS.md, 2026-08-18, "A
+ * Sanskrit form is set one way, everywhere": one face, one weight, one
+ * colour, in every position, not one that shifts between a heading and a
+ * paragraph). That rule is why this pins to --color-text-body specifically
+ * rather than inheriting: the same decision that requires one Devanagari
+ * colour everywhere is also, in dark mode, the more bloom-resistant of the
+ * two text colors (Run 2b) — using it uniformly, including where a
+ * Sanskrit headword eventually appears in a heading, gives every Sanskrit
+ * form the same headroom against the शिरोरेखा-bloom risk rather than only
+ * the instances that happen to sit in body copy.
+ * The underline still changes on hover/focus so the link remains
+ * discoverable without color. No page uses this yet; the rule exists
+ * before the first cross-reference link does, per docs/runs/RUN-2-color.md,
+ * §3.
+ */
+a:lang(hi),
+a:lang(gu) {
+  color: var(--color-text-body);
+}
+
+a:lang(hi):hover,
+a:lang(gu):hover {
+  text-decoration-thickness: 0.1em;
+}
+
+/*
+ * No synthesized italics for Devanagari or Gujarati (docs/DECISIONS.md,
+ * 2026-08-18): neither script has an italic tradition and no italic cut
+ * was purchased for either family (fonts.css). Without this, a browser
+ * asked for italic on Indic content fakes an oblique from the upright
+ * face, shearing the शिरोरेखा. This stops that at the element level,
+ * covering <em>/<i> and any inherited font-style: italic.
+ */
+:lang(hi),
+:lang(gu) {
+  font-synthesis: none;
+}
+
+::selection {
+  background: var(--color-link);
+  color: var(--color-bg);
+}
+
+/*
+ * :focus-visible only — not :focus, which would also ring mouse clicks.
+ * No bare `outline: none` exists anywhere in this stylesheet without this
+ * replacement present.
+ */
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}

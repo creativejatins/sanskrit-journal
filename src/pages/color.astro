@@ -1,0 +1,400 @@
+---
+// Dev-only color/contrast/links/base-element specimen for Run 2
+// (docs/runs/RUN-2-color.md). Not linked from anywhere. Skipped in the
+// production build.
+//
+// Content rules — see /CLAUDE.md, "Never write Sanskrit":
+// - The Devanagari and Gujarati text below comes only from
+//   src/data/specimen.yaml, read-only, exactly as Run 1b used it. Nothing
+//   here is typed or corrected.
+// - English chrome/placeholder text for the base-element demos is written
+//   freely — it is not Sanskrit and is not claimed as real journal content.
+// - Color hex values are read out of tokens.css by regex rather than
+//   retyped here, so this page can never silently drift from what ships.
+
+export const prerender = true;
+
+if (import.meta.env.PROD) {
+  return new Response(null, { status: 404 });
+}
+
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import * as yaml from 'js-yaml';
+
+import '../styles/fonts.css';
+import '../styles/tokens.css';
+import '../styles/base.css';
+
+const specimenPath = fileURLToPath(new URL('../data/specimen.yaml', import.meta.url));
+const specimen = yaml.load(fs.readFileSync(specimenPath, 'utf-8'));
+
+// ---------------------------------------------------------------------
+// Read color tokens out of tokens.css itself — do not retype the hex
+// values, the same discipline Run 1b used for the Latin unicode-range.
+//
+// Run 2b (dark mode): tokens.css now carries the light values on the bare
+// `:root { }` block and the dark override on `:root[data-theme="dark"] { }`
+// (the @media-guarded block is identical to the latter by construction —
+// see the comment above it in tokens.css — so extracting the manual-toggle
+// block covers both).  Each block is isolated first, then read from, so a
+// light-only regex can never accidentally pick up a dark value or vice
+// versa.
+// ---------------------------------------------------------------------
+const tokensPath = fileURLToPath(new URL('../styles/tokens.css', import.meta.url));
+const tokensCssRaw = fs.readFileSync(tokensPath, 'utf-8');
+
+function extractBlock(css, selectorRe) {
+  const m = css.match(selectorRe);
+  if (!m) throw new Error(`Selector not found in tokens.css: ${selectorRe}`);
+  return m[1];
+}
+
+// The bare `:root {` block — anchored so it does not also match
+// `:root:not(...)` or `:root[data-theme=...]`, both of which start with
+// the same four characters.
+const lightBlock = extractBlock(tokensCssRaw, /(?:^|\n):root\s*\{([^}]*)\}/);
+const darkBlock = extractBlock(tokensCssRaw, /:root\[data-theme=['"]dark['"]\]\s*\{([^}]*)\}/);
+
+function readToken(block, name) {
+  const re = new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{6})\\s*;`);
+  const m = block.match(re);
+  if (!m) throw new Error(`Token --${name} not found in the given tokens.css block`);
+  return m[1];
+}
+
+const TOKEN_NAMES = [
+  'color-bg',
+  'color-surface',
+  'color-text',
+  'color-text-body',
+  'color-text-muted',
+  'color-border',
+  'color-border-strong',
+  'color-link',
+  'color-link-hover',
+  'color-focus',
+];
+
+function readTokens(block) {
+  return Object.fromEntries(TOKEN_NAMES.map((name) => [name, readToken(block, name)]));
+}
+
+const tokens = readTokens(lightBlock);
+const darkTokens = readTokens(darkBlock);
+
+// ---------------------------------------------------------------------
+// WCAG relative-luminance contrast ratio, computed from the hex values
+// actually shipped in tokens.css — not eyeballed, not asserted.
+// ---------------------------------------------------------------------
+function hexToRgb(hex) {
+  const h = hex.replace('#', '');
+  return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
+}
+function srgbToLinear(c) {
+  const cs = c / 255;
+  return cs <= 0.03928 ? cs / 12.92 : Math.pow((cs + 0.055) / 1.055, 2.4);
+}
+function relativeLuminance(hex) {
+  const [r, g, b] = hexToRgb(hex).map(srgbToLinear);
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+function contrastRatio(hexA, hexB) {
+  const lA = relativeLuminance(hexA);
+  const lB = relativeLuminance(hexB);
+  const [lighter, darker] = lA > lB ? [lA, lB] : [lB, lA];
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+function buildPairs(t) {
+  return [
+    { name: 'text (heading) / bg', a: t['color-text'], b: t['color-bg'], floor: 4.5 },
+    { name: 'text (heading) / surface', a: t['color-text'], b: t['color-surface'], floor: 4.5 },
+    { name: 'text-body / bg', a: t['color-text-body'], b: t['color-bg'], floor: 4.5 },
+    { name: 'text-body / surface', a: t['color-text-body'], b: t['color-surface'], floor: 4.5 },
+    { name: 'text-muted / bg', a: t['color-text-muted'], b: t['color-bg'], floor: 4.5 },
+    { name: 'text-muted / surface', a: t['color-text-muted'], b: t['color-surface'], floor: 4.5 },
+    { name: 'link / bg', a: t['color-link'], b: t['color-bg'], floor: 4.5 },
+    { name: 'link / surface', a: t['color-link'], b: t['color-surface'], floor: 4.5 },
+    { name: 'link-hover / bg', a: t['color-link-hover'], b: t['color-bg'], floor: 4.5 },
+    { name: 'border-strong / bg (UI, 3:1 floor)', a: t['color-border-strong'], b: t['color-bg'], floor: 3.0 },
+    { name: 'focus / bg (UI, 3:1 floor)', a: t['color-focus'], b: t['color-bg'], floor: 3.0 },
+  ];
+}
+
+function buildContrastReport(t) {
+  return buildPairs(t).map((p) => {
+    const ratio = contrastRatio(p.a, p.b);
+    return {
+      ...p,
+      ratio,
+      passesAA: ratio >= p.floor,
+      passesAAA: ratio >= (p.floor === 4.5 ? 7 : 4.5),
+    };
+  });
+}
+
+const contrastReport = buildContrastReport(tokens);
+const darkContrastReport = buildContrastReport(darkTokens);
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Color specimen (dev only) — sanskritgrammar.com — Run 2</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <style>
+    body { margin: 2rem; }
+    section { margin-bottom: 3rem; border-top: 1px solid var(--color-border); padding-top: 1rem; }
+    .swatch-grid { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
+    .swatch { width: 220px; border: 1px solid var(--color-border); border-radius: 4px; overflow: hidden; }
+    .swatch-fill { height: 60px; }
+    .swatch-label { padding: 0.5rem; font-size: var(--text-size--1); background: white; color: #14181c; }
+    .pair-table { border-collapse: collapse; font-size: var(--text-size--1); margin-bottom: 1.5rem; }
+    .pair-table th, .pair-table td { border: 1px solid var(--color-border); padding: 0.4em 0.8em; text-align: left; }
+    .pass { color: #0a6b2a; }
+    .fail { color: #b3261e; font-weight: 700; }
+    .link-demo a { margin-right: 1.5em; }
+    .theme-toggle { position: sticky; top: 0; z-index: 10; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px; padding: 0.75rem 1rem; margin-bottom: 2rem; }
+    .theme-toggle button { margin-right: 0.5rem; padding: 0.4em 0.9em; border: 1px solid var(--color-border-strong); border-radius: 4px; background: var(--color-bg); color: var(--color-text); cursor: pointer; }
+    .theme-toggle button[aria-pressed="true"] { background: var(--color-link); color: var(--color-bg); border-color: var(--color-link); }
+    .theme-half { display: inline-block; width: 45%; min-width: 260px; vertical-align: top; padding: 1.5rem; box-sizing: border-box; border-radius: 4px; margin-right: 2%; }
+    .theme-half + .theme-half { margin-right: 0; }
+    .theme-half .sirorekha-sample { font-size: 16px; margin: 0 0 0.5em; }
+    .theme-half .slot-label { font-size: var(--text-size--1); margin: 0 0 0.75em; }
+  </style>
+</head>
+<body>
+  <p><strong>Dev-only specimen. Not in the production build, not linked from anywhere.</strong></p>
+  <p>Run 2 / Run 2b: color, contrast, links, base element styles, dark mode. See
+    docs/runs/RUN-2-color.md.</p>
+
+  <div class="theme-toggle">
+    <strong>Theme (manual override — sets <code>data-theme</code> on <code>&lt;html&gt;</code>):</strong>
+    <button type="button" data-theme-choice="system" aria-pressed="true">System</button>
+    <button type="button" data-theme-choice="light" aria-pressed="false">Light</button>
+    <button type="button" data-theme-choice="dark" aria-pressed="false">Dark</button>
+    <span id="theme-status"></span>
+  </div>
+
+  <section id="swatches">
+    <h2>1. Color tokens — both palettes</h2>
+    <p>Light is the default token set; dark is the <code>[data-theme="dark"]</code> override
+      (Run 2b). Shown side by side regardless of the toggle above, so both are visible without
+      switching back and forth.</p>
+    <h3>Light</h3>
+    <div class="swatch-grid">
+      {Object.entries(tokens).map(([name, hex]) => (
+        <div class="swatch">
+          <div class="swatch-fill" style={`background: ${hex};`}></div>
+          <div class="swatch-label"><code>--{name}</code><br />{hex}</div>
+        </div>
+      ))}
+    </div>
+    <h3>Dark</h3>
+    <div class="swatch-grid">
+      {Object.entries(darkTokens).map(([name, hex]) => (
+        <div class="swatch">
+          <div class="swatch-fill" style={`background: ${hex};`}></div>
+          <div class="swatch-label"><code>--{name}</code><br />{hex}</div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section id="contrast">
+    <h2>2. Contrast ratios — computed from the hex values above, not eyeballed</h2>
+    <h3>Light</h3>
+    <table class="pair-table">
+      <thead>
+        <tr><th>Pairing</th><th>Ratio</th><th>Floor</th><th>AA</th><th>AAA</th></tr>
+      </thead>
+      <tbody>
+        {contrastReport.map((r) => (
+          <tr>
+            <td>{r.name}</td>
+            <td>{r.ratio.toFixed(2)}:1</td>
+            <td>{r.floor.toFixed(1)}:1</td>
+            <td class={r.passesAA ? 'pass' : 'fail'}>{r.passesAA ? 'pass' : 'FAIL'}</td>
+            <td class={r.passesAAA ? 'pass' : 'fail'}>{r.passesAAA ? 'pass' : '—'}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+    <h3>Dark</h3>
+    <table class="pair-table">
+      <thead>
+        <tr><th>Pairing</th><th>Ratio</th><th>Floor</th><th>AA</th><th>AAA</th></tr>
+      </thead>
+      <tbody>
+        {darkContrastReport.map((r) => (
+          <tr>
+            <td>{r.name}</td>
+            <td>{r.ratio.toFixed(2)}:1</td>
+            <td>{r.floor.toFixed(1)}:1</td>
+            <td class={r.passesAA ? 'pass' : 'fail'}>{r.passesAA ? 'pass' : 'FAIL'}</td>
+            <td class={r.passesAAA ? 'pass' : 'fail'}>{r.passesAAA ? 'pass' : '—'}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </section>
+
+  <section id="links">
+    <h2>3. Links — default / hover / focus-visible, and the Sanskrit-link override</h2>
+    <p class="link-demo">
+      <a href="#links">English chrome link</a>
+      <a href="#links" lang="hi">{specimen.devanagari.plain}</a>
+      <a href="#links" lang="gu">{specimen.gujarati.plain}</a>
+    </p>
+    <p>Tab to each link above to see the <code>:focus-visible</code> ring. The two Indic links
+      should render in <code>--color-text-body</code>, not <code>--color-link</code> — hover/
+      focus still change the underline weight so they stay discoverable without color.</p>
+  </section>
+
+  <section id="base-elements">
+    <h2>4. Base element styles</h2>
+    <h1>Heading level 1 (Noto Serif)</h1>
+    <h2>Heading level 2</h2>
+    <h3>Heading level 3</h3>
+    <h4>Heading level 4</h4>
+    <p>
+      A paragraph of placeholder English chrome text, set at <code>var(--measure)</code>,
+      long enough to wrap onto more than one line so the measure and line-height are both
+      visible together rather than as two separate numbers on a spec sheet.
+    </p>
+    <ul>
+      <li>An unordered list item</li>
+      <li>A second item</li>
+    </ul>
+    <ol>
+      <li>An ordered list item</li>
+      <li>A second item</li>
+    </ol>
+    <blockquote>
+      <p>Placeholder English quotation text standing in for the one short BAPS quotation
+        <code>docs/PROJECT.md</code> permits — this block is never filled with real
+        BAPS text outside an actual entry.</p>
+      <cite>Source code, locator</cite>
+    </blockquote>
+    <hr />
+    <p>Text after the rule, to show <code>--color-border</code> against
+      <code>--color-bg</code>.</p>
+  </section>
+
+  <section id="em-no-synth">
+    <h2>5. No synthesized italic on Devanagari/Gujarati <code>&lt;em&gt;</code></h2>
+    <p lang="hi"><em>{specimen.devanagari.plain}</em> — computed <code>font-synthesis</code>
+      should read <code>none</code> below. (<code>font-style</code> itself still reads
+      <code>italic</code> — that reflects what <code>&lt;em&gt;</code> requested, not whether
+      the engine drew a synthetic slant; <code>font-synthesis: none</code> is what suppresses
+      the slant itself.)</p>
+    <p lang="gu"><em>{specimen.gujarati.plain}</em></p>
+    <pre id="em-report">checking…</pre>
+  </section>
+
+  <section id="sirorekha">
+    <h2>6. Devanagari शिरोरेखा at body size — light vs dark (Run 2b)</h2>
+    <p>Fixed to each palette's own colors regardless of the toggle above, so both sit next to
+      each other for direct comparison. Both boxes use <code>--color-text-body</code> (the
+      body-copy token, not the heading one — Run 2b adjustment) and render the same specimen
+      string, Noto Sans Devanagari 400 (the shipped body weight — no 500/600 cut exists to
+      reach for), at 16px (<code>--text-size-0</code>).</p>
+    <div>
+      <div class="theme-half" style={`background:${tokens['color-bg']}; color:${tokens['color-text-body']};`}>
+        <p class="slot-label" style={`color:${tokens['color-text-muted']};`}>Light</p>
+        <p class="sirorekha-sample" lang="hi" style="font-family: 'Noto Sans Devanagari', sans-serif;">{specimen.devanagari.plain}</p>
+        <p class="sirorekha-sample" lang="hi" style="font-family: 'Noto Sans Devanagari', sans-serif;">{specimen.devanagari.long}</p>
+      </div>
+      <div class="theme-half" style={`background:${darkTokens['color-bg']}; color:${darkTokens['color-text-body']};`}>
+        <p class="slot-label" style={`color:${darkTokens['color-text-muted']};`}>Dark</p>
+        <p class="sirorekha-sample" lang="hi" style="font-family: 'Noto Sans Devanagari', sans-serif;">{specimen.devanagari.plain}</p>
+        <p class="sirorekha-sample" lang="hi" style="font-family: 'Noto Sans Devanagari', sans-serif;">{specimen.devanagari.long}</p>
+      </div>
+    </div>
+    <p>Look for the शिरोरेखा (headline stroke) thinning or blooming on the dark box relative to
+      the light one — light-on-dark ink optically spreads, which reads as the stroke thickening
+      and the counters closing, not thinning; check both directions rather than assuming which
+      way it moves. See the report for what was found and, if the dim in
+      <code>--color-text-body</code> is still not enough on its own, a proposed next step.</p>
+  </section>
+
+  <section id="dark-heading-vs-body">
+    <h2>7. Dark: heading text vs body text, side by side (Run 2b adjustment)</h2>
+    <p>Both fixed to the dark palette regardless of the toggle above — this is the comparison
+      that motivated splitting <code>--color-text</code> into a bright (heading/strong) value
+      and a dimmer <code>--color-text-body</code> value. English and Devanagari shown together
+      since both roles exist in both scripts.</p>
+    <div>
+      <div class="theme-half" style={`background:${darkTokens['color-bg']}; color:${darkTokens['color-text']};`}>
+        <p class="slot-label" style={`color:${darkTokens['color-text-muted']};`}>Dark — <code>--color-text</code> ({darkContrastReport.find(r => r.name === 'text (heading) / bg').ratio.toFixed(2)}:1) — headings, strong</p>
+        <p style="font-family: 'Noto Serif', serif; font-weight: 700; font-size: 1.5rem; margin: 0 0 0.5em;">Heading-weight English sample</p>
+        <p lang="hi" class="sirorekha-sample" style="font-family: 'Noto Sans Devanagari', sans-serif; font-weight: 700;">{specimen.devanagari.plain}</p>
+      </div>
+      <div class="theme-half" style={`background:${darkTokens['color-bg']}; color:${darkTokens['color-text-body']};`}>
+        <p class="slot-label" style={`color:${darkTokens['color-text-muted']};`}>Dark — <code>--color-text-body</code> ({darkContrastReport.find(r => r.name === 'text-body / bg').ratio.toFixed(2)}:1) — paragraph copy</p>
+        <p style="font-family: 'Noto Sans', sans-serif; font-size: 1rem; margin: 0 0 0.5em; max-width: 32ch;">
+          A full paragraph of placeholder English body copy, long enough to show what the dimmer
+          value looks like over several lines rather than one short label.
+        </p>
+        <p lang="hi" class="sirorekha-sample" style="font-family: 'Noto Sans Devanagari', sans-serif;">{specimen.devanagari.long}</p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Manual theme toggle (Run 2b). "System" removes data-theme so
+    // prefers-color-scheme decides, matching the default described in
+    // docs/runs/RUN-2-color.md — this page has no persistence (localStorage,
+    // a cookie) because that is a page-template/component concern, out of
+    // scope here; the toggle exists only to preview both palettes.
+    function setTheme(choice) {
+      if (choice === 'system') {
+        delete document.documentElement.dataset.theme;
+      } else {
+        document.documentElement.dataset.theme = choice;
+      }
+      document.querySelectorAll('[data-theme-choice]').forEach((btn) => {
+        btn.setAttribute('aria-pressed', String(btn.dataset.themeChoice === choice));
+      });
+      const mql = window.matchMedia('(prefers-color-scheme: dark)');
+      document.getElementById('theme-status').textContent =
+        ` — system prefers ${mql.matches ? 'dark' : 'light'}; page is ${document.documentElement.dataset.theme ?? '(following system)'}`;
+    }
+    document.querySelectorAll('[data-theme-choice]').forEach((btn) => {
+      btn.addEventListener('click', () => setTheme(btn.dataset.themeChoice));
+    });
+    setTheme('system');
+
+    // Verification: computed color on the Indic links, computed font-style
+    // on the Indic <em>s. Read from the rendered page, not asserted from
+    // the stylesheet source.
+    function run() {
+      const report = { indic_links: [], indic_em: [] };
+
+      document.querySelectorAll('#links a[lang]').forEach((a) => {
+        report.indic_links.push({
+          lang: a.getAttribute('lang'),
+          computedColor: getComputedStyle(a).color,
+        });
+      });
+
+      document.querySelectorAll('#em-no-synth em').forEach((em) => {
+        const cs = getComputedStyle(em);
+        report.indic_em.push({
+          lang: em.closest('[lang]')?.getAttribute('lang'),
+          // fontStyle stays "italic" — that's the requested style, not
+          // whether the engine drew a synthetic slant. fontSynthesis is
+          // the property that actually gates the slant.
+          computedFontStyle: cs.fontStyle,
+          computedFontSynthesis: cs.fontSynthesis,
+        });
+      });
+
+      document.getElementById('em-report').textContent = JSON.stringify(report, null, 2);
+      window.__run2Report = report;
+    }
+    run();
+  </script>
+</body>
+</html>

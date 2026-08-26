@@ -122,7 +122,7 @@ settled.
 
 ## Out of scope
 
-Colour, page templates, `labels.yaml`, any content entry, any Keystatic change, the Cloudflare
+Color, page templates, `labels.yaml`, any content entry, any Keystatic change, the Cloudflare
 adapter. Raise them if they block; do not act on them.
 
 ## Report

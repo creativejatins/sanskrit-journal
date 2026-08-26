@@ -1,12 +1,23 @@
 /*
- * Type scale, line-height, measure, spacing. Hand-written custom
- * properties — no Tailwind, no CSS framework. No colour tokens: colour is
- * Run 2 (docs/runs/RUN-1B-metrics.md, out of scope for this run).
+ * Type scale, line-height, measure, spacing, color. Hand-written custom
+ * properties — no Tailwind, no CSS framework.
  *
  * Font-family bindings (the lang="hi" / lang="gu" → one-Indic-family-per-
  * element pattern, docs/DECISIONS.md 2026-08-18) are a page-template
  * concern, out of scope here — see /specimen/ for the pattern demonstrated
  * inline until page templates land.
+ *
+ * Color tokens are Run 2 (docs/runs/RUN-2-color.md). Light stays the
+ * default token set — cool, pale, restrained; body text near-black at
+ * full contrast (docs/DECISIONS.md, 2026-08-18, "Light palette. Dark
+ * mode deferred, not rejected."). Dark is no longer deferred: Run 2b adds
+ * it as a `[data-theme="dark"]` override block below, applied by
+ * `prefers-color-scheme` by default, overridable by a manual `data-theme`
+ * attribute on the root element either way. Contrast ratios (WCAG
+ * relative luminance, computed, not eyeballed) are reported in
+ * docs/runs/RUN-2-color.md for both palettes; the values below are a
+ * proposal until the owner has looked at /color/ in both themes, the same
+ * standing as Run 1b's size-adjust values before he looked at /specimen/.
  */
 
 :root {
@@ -49,4 +60,132 @@
   --space-5: 1.5rem;
   --space-6: 2rem;
   --space-7: 3rem;
+
+  /* ---------------------------------------------------------------- */
+  /* Color — light palette only. Ratios below are WCAG relative-      */
+  /* luminance contrast, computed from these exact hex values; see     */
+  /* docs/runs/RUN-2-color.md for the full table.                     */
+  /* ---------------------------------------------------------------- */
+
+  /* Ground. --color-surface is one step down, for provenance strips   */
+  /* and the blockquote — never for body text itself.                  */
+  --color-bg: #fafbfc;
+  --color-surface: #f1f4f7;
+
+  /* Text. --color-text is for headings and strong text; --color-text-body */
+  /* is for paragraph copy. Equal in light — light was never too harsh to  */
+  /* need the split (docs/runs/RUN-2-color.md, Run 2b adjustment); dark    */
+  /* is where the two diverge, below. --color-text/bg = 17.22:1,           */
+  /* --color-text-muted/bg = 8.17:1, --color-text-muted/surface = 7.67:1 — */
+  /* muted now clears AAA (7:1) on both pairings, not only on bg (Run 2b   */
+  /* adjustment; it was 6.85:1 on surface before, an AAA fail).            */
+  --color-text: #14181c;
+  --color-text-body: #14181c;
+  --color-text-muted: #454e57;
+
+  /* Borders. --color-border is decorative (rules, dividers) and       */
+  /* carries no contrast floor — it conveys nothing on its own.        */
+  /* --color-border-strong is for interactive component edges (inputs, */
+  /* focus fallback) and holds 3.37:1 against --color-bg, clearing the */
+  /* WCAG 1.4.11 non-text 3:1 floor.                                   */
+  --color-border: #d7dee5;
+  --color-border-strong: #7c8b9b;
+
+  /* Links. --color-link/bg = 8.10:1 (AAA), --color-link-hover/bg =    */
+  /* 11.10:1. No visited-color token — see docs/runs/RUN-2-color.md,   */
+  /* §1, for why.                                                      */
+  --color-link: #1d4e89;
+  --color-link-hover: #143a66;
+
+  /* Focus. Reuses --color-link rather than adding a second accent hue */
+  /* — "restrained" means not inventing one just for :focus-visible.   */
+  --color-focus: #1d4e89;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Dark palette — Run 2b (docs/runs/RUN-2-color.md). Cool, deep,          */
+/* restrained, the same design language as light rather than an unrelated */
+/* second palette. Applied two ways, matching "default to system, manual  */
+/* toggle overrides it":                                                  */
+/*                                                                        */
+/*  1. @media (prefers-color-scheme: dark), guarded by                    */
+/*     :not([data-theme="light"]) so an explicit light choice still wins  */
+/*     over a dark system preference.                                    */
+/*  2. :root[data-theme="dark"], which wins regardless of system          */
+/*     preference — the manual toggle.                                   */
+/*                                                                        */
+/* The declarations are duplicated rather than shared because plain CSS   */
+/* custom properties have no include mechanism and this file takes no    */
+/* build-time CSS tooling (Run 1's own constraint, carried forward). Keep */
+/* the two blocks identical; a future edit to one without the other is    */
+/* the failure mode to watch for.                                        */
+/*                                                                        */
+/* --color-text is #dde2e6, not pure white: light-on-dark text blooms, so  */
+/* strokes read heavier than they are and Devanagari's शिरोरेखा is the     */
+/* stroke most exposed to that (docs/runs/RUN-2-color.md, Run 2b). Only    */
+/* 400 and 700 are self-hosted for the Indic families (Run 1) — there is   */
+/* no intermediate weight to reach for.                                    */
+/*                                                                         */
+/* Run 2b adjustment, from a visual check: --color-text at 13.67:1 read    */
+/* well for headings and labels but harsh over a full paragraph, so text   */
+/* now splits in dark (not in light, which was never harsh enough to      */
+/* need it): --color-text stays the bright value, for headings and strong */
+/* text; --color-text-body is a dimmer value, ~10-11:1, for paragraph      */
+/* copy — still comfortably clear of the 4.5:1 AA floor and the 7:1 AAA    */
+/* one, with more headroom than the bright value to dim further later if  */
+/* it still reads harsh. The bloom fix is therefore two levers now         */
+/* (dimmed bright value, and a separate dimmer body value) rather than     */
+/* one flat dim applied everywhere regardless of text role.                */
+/* ---------------------------------------------------------------------- */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    /* Ground. --color-text/bg = 13.67:1 — deliberately short of pure     */
+    /* white's 17.84:1, for the bloom reason above.                      */
+    --color-bg: #14181c;
+    --color-surface: #1b2126;
+
+    /* Text. --color-text/bg = 13.67:1 (headings, strong). --color-text- */
+    /* body/bg = 10.77:1, /surface = 9.81:1 (paragraph copy — Run 2b     */
+    /* adjustment). --color-text-muted/bg = 8.47:1, /surface = 7.72:1 —  */
+    /* both now clear AAA (7:1); it was 6.88:1 / 6.27:1 before, an AAA   */
+    /* fail on both pairings (Run 2b adjustment).                        */
+    --color-text: #dde2e6;
+    --color-text-body: #c3cad0;
+    --color-text-muted: #aab4bd;
+
+    /* Borders. --color-border stays decorative, no floor. */
+    /* --color-border-strong holds 3.66:1 against --color-bg, clearing   */
+    /* the WCAG 1.4.11 non-text 3:1 floor with the same margin light's   */
+    /* border-strong has. Left alone in the Run 2b adjustment: it passes */
+    /* its 3:1 UI floor and AAA does not apply to non-text.              */
+    --color-border: #2a3138;
+    --color-border-strong: #647380;
+
+    /* Links. Lighter than the light palette's link, not the same hue    */
+    /* dimmed — a dark-mode link needs to brighten to read against a     */
+    /* dark ground the way the light one darkens to read against a pale  */
+    /* one. --color-link/bg = 8.66:1, --color-link-hover/bg = 11.56:1 —  */
+    /* hover moves brighter (more contrast), mirroring light's hover     */
+    /* moving darker (also more contrast), so "hover = more emphasis"    */
+    /* holds in both themes rather than reversing.                       */
+    --color-link: #8fb8e8;
+    --color-link-hover: #b7d3f2;
+
+    /* Focus. Reuses --color-link, same reasoning as light. */
+    --color-focus: #8fb8e8;
+  }
+}
+
+:root[data-theme='dark'] {
+  --color-bg: #14181c;
+  --color-surface: #1b2126;
+  --color-text: #dde2e6;
+  --color-text-body: #c3cad0;
+  --color-text-muted: #aab4bd;
+  --color-border: #2a3138;
+  --color-border-strong: #647380;
+  --color-link: #8fb8e8;
+  --color-link-hover: #b7d3f2;
+  --color-focus: #8fb8e8;
 }
