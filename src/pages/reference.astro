@@ -1,0 +1,66 @@
+---
+// The reference hub — Run 3, step 2 (docs/runs/RUN-3-shell.md). A hub
+// page, not a dropdown: links the five reference collections rather than
+// listing them as top-level nav items.
+//
+// Labels are the ASCII collection names, on purpose — see the brief's
+// "rule that overrides this brief". Their real display labels live in
+// src/data/labels.yaml, empty and blocked on the owner
+// (docs/DECISIONS.md, 2026-08-18).
+//
+// The five destinations don't have pages yet — collection templates are
+// out of scope for this run — so these links 404 until a later run builds
+// them. That is expected here, not an oversight.
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { REFERENCE_LINKS } from '../data/site';
+---
+
+<BaseLayout
+  title="Reference"
+  description="The reference collections: dhatus, vocabulary, avyaya, conjugations and declensions."
+>
+  <h1>Reference</h1>
+  <p>
+    Placeholder text — the owner rewrites this. The reference side holds what accumulates over
+    time rather than what was written on a given day: the full dhatu list, vocabulary, and
+    printed paradigm tables, each entered from a source with its page recorded.
+  </p>
+
+  <ul class="reference-links">
+    {REFERENCE_LINKS.map((item) => (
+      <li>
+        <a href={item.href}>{item.label}</a>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>
+
+<style>
+  /*
+   * A plain list, not code-styled boxes — until src/data/labels.yaml is
+   * filled these are bare ASCII collection names, and dressing that up as
+   * a card grid in a monospace font read as a debug page rather than a
+   * page waiting on real labels.
+   */
+  .reference-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-width: 24rem;
+  }
+
+  .reference-links li + li {
+    margin-top: 0;
+  }
+
+  .reference-links a {
+    display: block;
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .reference-links a:hover {
+    color: var(--color-link);
+  }
+</style>

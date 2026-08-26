@@ -1,0 +1,57 @@
+---
+// Dev-only demo of the Provenance component (Run 3, step 4,
+// docs/runs/RUN-3-shell.md). Not linked from anywhere. Same
+// prerender/PROD-404 pattern as /specimen/ and /color/.
+//
+// No entries exist yet, so this demonstrates the component against
+// placeholder values only — ASCII source codes, locators and dates, never
+// a real headword (there isn't one to show, and this run renders no
+// Devanagari or Gujarati regardless — see /CLAUDE.md).
+
+export const prerender = false;
+
+if (import.meta.env.PROD) {
+  return new Response(null, { status: 404 });
+}
+
+import '../styles/fonts.css';
+import '../styles/tokens.css';
+import '../styles/base.css';
+import Provenance from '../components/Provenance.astro';
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Provenance demo (dev only) — sanskritgrammar.com — Run 3</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <style>
+    body { margin: 2rem; max-width: 40rem; }
+    .placeholder-headword { margin: 0 0 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--color-border); }
+  </style>
+</head>
+<body>
+  <p><strong>Dev-only demo. Not in the production build, not linked from anywhere.</strong></p>
+  <p>The Provenance component, docs/runs/RUN-3-shell.md step 4. Placeholder values only —
+    no entries exist yet.</p>
+
+  <div class="placeholder-headword">
+    <Provenance source="BAPS-1" locator="p. 31" date="2026-08-14" />
+    <h1>Placeholder headword</h1>
+    <p>Stands in for an entry's title. No real headword exists yet — nothing here is Sanskrit.</p>
+  </div>
+
+  <div class="placeholder-headword">
+    <Provenance source="LSK-GPS" locator="p. 142" date="2026-08-20" />
+    <h1>A second placeholder, from a different source</h1>
+    <p>Shows the component with a different source code and locator shape.</p>
+  </div>
+
+  <div class="placeholder-headword">
+    <Provenance source="DEVVANI" locator="14:32" date="2026-08-22" />
+    <h1>A third placeholder, from a video source</h1>
+    <p><code>mm:ss</code> as the locator, per /CLAUDE.md's provenance rule.</p>
+  </div>
+</body>
+</html>

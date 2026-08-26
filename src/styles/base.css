@@ -39,6 +39,17 @@ body {
  * (docs/DECISIONS.md, "A Sanskrit form is set one way, everywhere"), which
  * is a page-template concern, not something this file can apply for it.
  */
+/*
+ * Explicit sizes from the tokens.css type scale (Run 3 fix — headings had
+ * no font-size at all before this, only family/color/line-height, so h1
+ * rendered at the browser's own UA default rather than a designed value.
+ * That is also where the rhythm comes from: margin-top scales with
+ * heading weight (h1 gets the most air before it, h4 the least) so the
+ * eye reads section breaks by size, and margin-bottom stays tight so a
+ * heading binds to the text under it rather than floating between two
+ * blocks. `:first-child` zeroes the top margin so a heading opening
+ * <main> doesn't add a second gap on top of main's own padding.
+ */
 h1,
 h2,
 h3,
@@ -46,6 +57,34 @@ h4 {
   font-family: 'Noto Serif', serif;
   color: var(--color-text);
   line-height: 1.2;
+  margin-bottom: var(--space-3);
+}
+
+h1 {
+  font-size: var(--text-size-3);
+  margin-top: var(--space-7);
+}
+
+h2 {
+  font-size: var(--text-size-2);
+  margin-top: var(--space-6);
+}
+
+h3 {
+  font-size: var(--text-size-1);
+  margin-top: var(--space-5);
+}
+
+h4 {
+  font-size: var(--text-size-0);
+  margin-top: var(--space-4);
+}
+
+h1:first-child,
+h2:first-child,
+h3:first-child,
+h4:first-child {
+  margin-top: 0;
 }
 
 strong,
@@ -54,6 +93,7 @@ b {
 }
 
 p {
+  margin: 0 0 var(--space-4);
   max-width: var(--measure);
 }
 
@@ -153,6 +193,29 @@ a:lang(gu):hover {
 ::selection {
   background: var(--color-link);
   color: var(--color-bg);
+}
+
+/*
+ * Skip link (Run 3, docs/runs/RUN-3-shell.md): off-screen until it
+ * receives keyboard focus, then pinned to the top-left corner above
+ * everything else. A base-element concern, not layout-specific — every
+ * page that uses BaseLayout gets one, so it lives here rather than in the
+ * layout's own scoped styles.
+ */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  background: var(--color-bg);
+  color: var(--color-link);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 0 0 4px 0;
+}
+
+.skip-link:focus {
+  left: 0;
 }
 
 /*

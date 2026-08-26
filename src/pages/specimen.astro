@@ -14,7 +14,12 @@
 //   Indic font's actual cmap with its declared unicode-range. The JSON is
 //   gitignored and regenerable; nothing here is typed either.
 
-export const prerender = true;
+// prerender = false (Run 3, docs/runs/RUN-3-shell.md, step 0): see
+// color.astro for why — prerender = true made the static build write
+// Astro's own 404 template as a real, served file at /specimen/index.html
+// instead of leaving the route absent from dist/.
+
+export const prerender = false;
 
 if (import.meta.env.PROD) {
   return new Response(null, { status: 404 });

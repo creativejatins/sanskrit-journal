@@ -1,0 +1,308 @@
+---
+// The site shell — Run 3 (docs/runs/RUN-3-shell.md). Every real page
+// renders through this layout; /specimen/ and /color/ (dev-only, Runs 1–2)
+// deliberately do not, and stay off it.
+//
+// Wires in fonts.css, tokens.css and base.css (Runs 1–2), the three font
+// preloads (Run 1, step 7: Noto Sans Latin/Devanagari/Gujarati 400), the
+// skip link, meta basics, the theme toggle (moved here from color.astro,
+// now with localStorage persistence and a no-flash inline script), the
+// header, the footer, and site-level JSON-LD (WebSite + Person).
+//
+// Chrome is English — see /CLAUDE.md, "Never write Sanskrit". Nothing in
+// this file renders Devanagari or Gujarati.
+
+import '../styles/fonts.css';
+import '../styles/tokens.css';
+import '../styles/base.css';
+
+import {
+  AUTHOR_NAME,
+  LICENSE_NAME,
+  LICENSE_URL,
+  NAV_ITEMS,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_TAGLINE,
+} from '../data/site';
+import { getWebsiteJsonLd } from '../lib/jsonld';
+
+interface Props {
+  /** Page-specific title. Falls back to the bare site name when omitted. */
+  title?: string;
+  description?: string;
+}
+
+const { title, description = SITE_DESCRIPTION } = Astro.props;
+const pageTitle = title ? `${title} — ${SITE_NAME}` : SITE_NAME;
+const websiteJsonLd = getWebsiteJsonLd();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <!--
+      Theme init — must run before the stylesheets below so the manual
+      choice (if any) is on <html> before first paint. is:inline keeps this
+      exactly as written and un-deferred; Astro's own injected stylesheet
+      links land later in <head>, after explicit template content, so this
+      stays ahead of them. "System" (no stored choice) needs no JS at all —
+      tokens.css's own `@media (prefers-color-scheme: dark)` handles it.
+    -->
+    <script is:inline>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (t === 'light' || t === 'dark') {
+            document.documentElement.dataset.theme = t;
+          }
+        } catch (e) {
+          /* localStorage unavailable (private mode, etc.) — system preference still applies */
+        }
+      })();
+    </script>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+
+    <link rel="preload" href="/fonts/noto-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/noto-sans-devanagari-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/noto-sans-gujarati-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+
+    <script type="application/ld+json" set:html={JSON.stringify(websiteJsonLd)} />
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a href="/" class="wordmark">{SITE_NAME}</a>
+        <p class="tagline">{SITE_TAGLINE}</p>
+        <nav aria-label="Primary">
+          <ul>
+            {NAV_ITEMS.map((item) => (
+              <li><a href={item.href}>{item.label}</a></li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer-inner">
+        <ul class="footer-links">
+          <li><a href={LICENSE_URL} rel="license">{LICENSE_NAME}</a></li>
+          <li><a href="/corrections/">Corrections</a></li>
+          <li>{AUTHOR_NAME}</li>
+        </ul>
+        <div class="theme-toggle" role="group" aria-label="Color theme">
+          <button type="button" data-theme-choice="system" aria-pressed="true">System</button>
+          <button type="button" data-theme-choice="light" aria-pressed="false">Light</button>
+          <button type="button" data-theme-choice="dark" aria-pressed="false">Dark</button>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Theme toggle behavior (Run 3). The no-flash inline script above
+      // handles first paint; this handles clicks and persists the choice
+      // so it survives navigation to the next page load.
+      function currentTheme() {
+        return document.documentElement.dataset.theme ?? 'system';
+      }
+      function updateButtons() {
+        const current = currentTheme();
+        document.querySelectorAll('[data-theme-choice]').forEach((btn) => {
+          btn.setAttribute('aria-pressed', String(btn.getAttribute('data-theme-choice') === current));
+        });
+      }
+      function setTheme(choice) {
+        if (choice === 'system') {
+          delete document.documentElement.dataset.theme;
+          try {
+            localStorage.removeItem('theme');
+          } catch (e) {}
+        } else {
+          document.documentElement.dataset.theme = choice;
+          try {
+            localStorage.setItem('theme', choice);
+          } catch (e) {}
+        }
+        updateButtons();
+      }
+      document.querySelectorAll('[data-theme-choice]').forEach((btn) => {
+        btn.addEventListener('click', () => setTheme(btn.getAttribute('data-theme-choice')));
+      });
+      updateButtons();
+    </script>
+  </body>
+</html>
+
+<style>
+  /*
+   * Full-bleed bands. .site-header/.site-footer are edge-to-edge (their
+   * border is the "use the width for something" this layout was missing —
+   * a rule the wide viewport actually sees, not just more empty margin);
+   * the *-inner wrapper inside each is what's centered at --content-width.
+   * main gets the same centered treatment directly, since it has no band
+   * of its own to draw.
+   */
+  .site-header {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .site-header-inner {
+    max-width: var(--content-width);
+    margin: 0 auto;
+    padding: var(--space-5) var(--space-4) var(--space-4);
+  }
+
+  .wordmark {
+    display: inline-block;
+    font-family: 'Noto Serif', serif;
+    font-size: var(--text-size-2);
+    font-weight: 700;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .wordmark:hover {
+    color: var(--color-link);
+  }
+
+  .tagline {
+    margin: var(--space-1) 0 var(--space-4);
+    color: var(--color-text-muted);
+    font-size: var(--text-size--1);
+    /* No max-width here: --measure (base.css's global `p` rule already
+       applies it) sizes running prose, not a one-line header caption.
+       It's short enough never to reach 65ch regardless. */
+  }
+
+  nav[aria-label='Primary'] ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-5);
+  }
+
+  /* base.css's `li + li { margin-top }` is a vertical-list rule (spacing
+     between stacked bullets) that also, unintentionally, matches these
+     flex rows — it pushed every item but the first down a few pixels,
+     which read as the first nav item being both offset and larger (it
+     wasn't larger; items 2–5 just sat lower). Reset it here rather than
+     in base.css, since the deviation from stacked-list flow is this
+     layout's own doing, not a base-element default. */
+  nav[aria-label='Primary'] li {
+    margin-top: 0;
+  }
+
+  nav[aria-label='Primary'] a {
+    text-decoration: none;
+    color: var(--color-text-body);
+    font-size: var(--text-size--1);
+  }
+
+  nav[aria-label='Primary'] a:hover {
+    text-decoration: underline;
+    color: var(--color-link);
+  }
+
+  /*
+   * More air between the header band and the page's own content than
+   * between elements within a section — the header/main boundary is the
+   * biggest seam on the page. Bottom padding matches, ahead of the
+   * footer's own band and margin.
+   */
+  main {
+    max-width: var(--content-width);
+    margin: 0 auto;
+    padding: var(--space-6) var(--space-4) var(--space-7);
+    min-height: 40vh;
+  }
+
+  .site-footer {
+    margin-top: var(--space-7);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .site-footer-inner {
+    max-width: var(--content-width);
+    margin: 0 auto;
+    padding: var(--space-4);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-3) var(--space-5);
+  }
+
+  .footer-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    color: var(--color-text-muted);
+    font-size: var(--text-size--1);
+  }
+
+  /* Same base.css `li + li` reset as the nav — see the comment there. */
+  .footer-links li {
+    margin-top: 0;
+  }
+
+  .footer-links a {
+    color: var(--color-text-muted);
+  }
+
+  .footer-links a:hover {
+    color: var(--color-link);
+  }
+
+  /*
+   * Restyled as footer text, not a developer control (Run 3 fix): plain
+   * inline buttons matching the footer's own link treatment — muted,
+   * underlined on the active choice, no bordered/filled button chrome.
+   * Moved here from the header for the same reason: it's a page-wide
+   * preference, not something that needs a prominent slot at the top of
+   * every page.
+   */
+  .theme-toggle {
+    display: flex;
+    gap: var(--space-3);
+    font-size: var(--text-size--1);
+  }
+
+  .theme-toggle button {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: var(--color-text-muted);
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    cursor: pointer;
+  }
+
+  .theme-toggle button:hover {
+    color: var(--color-link);
+  }
+
+  .theme-toggle button[aria-pressed='true'] {
+    color: var(--color-text);
+    text-decoration-color: currentColor;
+  }
+</style>

@@ -12,6 +12,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^14.2.5",
     "@astrojs/markdoc": "^2.0.6",
     "@astrojs/react": "^6.0.2",
     "@fontsource/noto-sans": "^5.3.0",
@@ -29,5 +30,8 @@
     "js-yaml": "^5.3.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "wrangler": "^4.126.0"
   }
 }

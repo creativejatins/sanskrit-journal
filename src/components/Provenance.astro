@@ -1,0 +1,59 @@
+---
+// The provenance line — Run 3 (docs/runs/RUN-3-shell.md, step 4). One
+// component, used everywhere an entry needs to declare its source.
+//
+// Shape settled in docs/DECISIONS.md, 2026-08-18 ("How a reference entry
+// presents"): sits above the headword, reads as a filing reference before
+// the reader meets the entry, muted text on a raised surface — that pairing
+// was tuned in Run 2 specifically for this (--color-text-muted on
+// --color-surface clears 7:1 in both themes).
+//
+// Every field here is ASCII (a source code like `BAPS-1`, a locator like
+// `p. 31`, an ISO date) — never Sanskrit, so this component carries no
+// lang-switching concern the way a headword does.
+
+interface Props {
+  /** Short code from docs/SOURCES.md, e.g. "BAPS-1". */
+  source: string;
+  /** Page number for print ("p. 31"), mm:ss for video. */
+  locator: string;
+  /** ISO date (YYYY-MM-DD) the entry was written. */
+  date: string;
+}
+
+const { source, locator, date } = Astro.props;
+
+const displayDate = new Date(`${date}T00:00:00Z`).toLocaleDateString('en-GB', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+---
+
+<p class="provenance">
+  <span class="provenance-source">{source}</span>
+  <span class="provenance-sep" aria-hidden="true">·</span>
+  <span class="provenance-locator">{locator}</span>
+  <span class="provenance-sep" aria-hidden="true">·</span>
+  <time class="provenance-date" datetime={date}>{displayDate}</time>
+</p>
+
+<style>
+  .provenance {
+    display: flex;
+    gap: var(--space-2);
+    align-items: baseline;
+    margin: 0 0 var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    background: var(--color-surface);
+    border-radius: 4px;
+    color: var(--color-text-muted);
+    font-size: var(--text-size--1);
+    width: fit-content;
+  }
+
+  .provenance-sep {
+    color: var(--color-border-strong);
+  }
+</style>

@@ -1,17 +1,58 @@
 ---
+// The homepage — Run 3, step 6 (docs/runs/RUN-3-shell.md). Replaces
+// Astro's own placeholder. Placeholder prose throughout, in English, that
+// the owner rewrites — see the brief's "rule that overrides this brief".
+// No example entries, no sample headwords: there is nothing to show yet,
+// and the empty state below says so rather than faking content.
 
+import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout>
+  <h1>A Sanskrit learning journal</h1>
+  <p>
+    Placeholder text — the owner rewrites this. This site is a public record of one person
+    learning Sanskrit, written as it happens: lessons understood, words looked up, verses broken
+    down — each one entered from a printed book or a video, with the page or timestamp recorded
+    alongside it.
+  </p>
+  <p>
+    It is a journal, not a reference work. Mistakes will appear here, and a mistake in a journal
+    is a correction, not a credibility problem.
+  </p>
+
+  <p class="home-links">
+    <a href="/syllabus/">Browse the syllabus</a>
+    <a href="/reference/">Browse the reference collections</a>
+  </p>
+
+  <section class="recent-entries" aria-labelledby="recent-entries-heading">
+    <h2 id="recent-entries-heading">Recent entries</h2>
+    <p class="empty-state">
+      Nothing written yet. The first entry will appear here once it exists.
+    </p>
+  </section>
+</BaseLayout>
+
+<style>
+  .home-links {
+    display: flex;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .recent-entries {
+    margin-top: var(--space-7);
+  }
+
+  .empty-state {
+    /* A UI block, not running prose — base.css's global `p { max-width:
+       var(--measure) }` is the wrong constraint for it, so it's lifted
+       here rather than left to squeeze into a prose-width line. */
+    max-width: none;
+    padding: var(--space-4);
+    background: var(--color-surface);
+    border-radius: 4px;
+    color: var(--color-text-muted);
+  }
+</style>

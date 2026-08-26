@@ -11,8 +11,18 @@
 //   freely — it is not Sanskrit and is not claimed as real journal content.
 // - Color hex values are read out of tokens.css by regex rather than
 //   retyped here, so this page can never silently drift from what ships.
+//
+// prerender = false (Run 3, docs/runs/RUN-3-shell.md, step 0): rendered
+// on demand, not at build time. With prerender = true, Astro's static
+// build still had to materialize *something* on disk for this route, and
+// for a page returning a bare 404 Response it wrote Astro's own 404
+// template as a real 200-served static file at /color/index.html — the
+// opposite of "absent from dist" and "out of the production build". With
+// prerender = false there is no static file to write; a request only
+// reaches this code path on demand, hits the PROD check below, and gets a
+// real 404 status rather than a static file shaped like one.
 
-export const prerender = true;
+export const prerender = false;
 
 if (import.meta.env.PROD) {
   return new Response(null, { status: 404 });

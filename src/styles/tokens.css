@@ -51,6 +51,19 @@
   --measure: 65ch;
 
   /* ---------------------------------------------------------------- */
+  /* Content width — the page shell (header/main/footer), Run 3. Wider */
+  /* than --measure on purpose: --measure sizes a line of running      */
+  /* prose, this sizes the layout column that prose sits inside, along */
+  /* with chrome that has no business being squeezed to 65ch — a nav   */
+  /* row, a card grid, a footer link list. Fixed in rem, not ch: ch    */
+  /* resolves per element against that element's own font, so reusing */
+  /* it for a layout-level width the header/main/footer all have to    */
+  /* agree on is the wrong tool even where it happens to compute the   */
+  /* same number today.                                                */
+  /* ---------------------------------------------------------------- */
+  --content-width: 60rem;
+
+  /* ---------------------------------------------------------------- */
   /* Spacing — few steps, rem-based.                                   */
   /* ---------------------------------------------------------------- */
   --space-1: 0.25rem;
